@@ -1,0 +1,52 @@
+{
+	"name": "ollama-webui",
+	"version": "0.0.1",
+	"private": true,
+	"scripts": {
+		"dev": "vite dev --host",
+		"build": "vite build",
+		"preview": "vite preview",
+		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
+		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
+		"lint": "npm run eslint",
+		"lint:types": "npm run check",
+		"fmt": "npm run prettier:svelte && npm run prettier",
+		"eslint": "npx -p eslint@8 -- eslint .",
+		"prettier:svelte": "npx -p prettier@2 -- prettier --plugin-search-dir . --write .",
+		"prettier": "npx -p prettier@2 -- prettier --write '**/*.{js,css,md,html,json}'"
+	},
+	"devDependencies": {
+		"@sveltejs/adapter-auto": "^2.0.0",
+		"@sveltejs/adapter-static": "^2.0.3",
+		"@sveltejs/kit": "^1.20.4",
+		"@tailwindcss/typography": "^0.5.10",
+		"@typescript-eslint/eslint-plugin": "^6.0.0",
+		"@typescript-eslint/parser": "^6.0.0",
+		"autoprefixer": "^10.4.16",
+		"eslint": "^8.28.0",
+		"eslint-config-prettier": "^8.5.0",
+		"eslint-plugin-svelte": "^2.30.0",
+		"postcss": "^8.4.31",
+		"prettier": "^2.8.0",
+		"prettier-plugin-svelte": "^2.10.1",
+		"svelte": "^4.0.5",
+		"svelte-check": "^3.4.3",
+		"tailwindcss": "^3.3.3",
+		"tslib": "^2.4.1",
+		"typescript": "^5.0.0",
+		"vite": "^4.4.2"
+	},
+	"type": "module",
+	"dependencies": {
+		"@sveltejs/adapter-node": "^1.3.1",
+		"file-saver": "^2.0.5",
+		"highlight.js": "^11.9.0",
+		"idb": "^7.1.1",
+		"js-sha256": "^0.10.1",
+		"katex": "^0.16.9",
+		"marked": "^9.1.0",
+		"svelte-french-toast": "^1.2.0",
+		"tippy.js": "^6.3.7",
+		"uuid": "^9.0.1"
+	}
+}
