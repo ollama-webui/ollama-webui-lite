@@ -1,4 +1,6 @@
 ## Quick setup:
-`docker compose up -d --build
+```bash
+docker compose up -d --build
 npm ci
-npm run dev`
+npm run dev
+```
