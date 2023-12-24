@@ -20,7 +20,7 @@
 	import SettingsModal from '$lib/components/chat/SettingsModal.svelte';
 	import Sidebar from '$lib/components/layout/Sidebar.svelte';
 	import toast from 'svelte-french-toast';
-	import { OLLAMA_API_BASE_URL, WEBUI_API_BASE_URL } from '$lib/constants';
+	import { OLLAMA_API_BASE_URL } from '$lib/constants';
 
 	let requiredOllamaVersion = '0.1.16';
 	let loaded = false;
