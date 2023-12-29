@@ -8,7 +8,7 @@
 	import auto_render from 'katex/dist/contrib/auto-render.mjs';
 	import 'katex/dist/katex.min.css';
 
-	import { chatId, config, db, settings, user } from '$lib/stores';
+	import { chatId, db } from '$lib/stores';
 	import { tick } from 'svelte';
 
 	import toast from 'svelte-french-toast';
@@ -66,11 +66,6 @@
 			window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
 		})();
 	}
-
-	const speakMessage = (message) => {
-		const speak = new SpeechSynthesisUtterance(message);
-		speechSynthesis.speak(speak);
-	};
 
 	const createCopyCodeBlockButton = () => {
 		// use a class selector if available
@@ -250,20 +245,6 @@
 		history.messages[messageId].editedContent = undefined;
 	};
 
-	const rateMessage = async (messageIdx, rating) => {
-		messages = messages.map((message, idx) => {
-			if (messageIdx === idx) {
-				message.rating = rating;
-			}
-			return message;
-		});
-
-		$db.updateChatById(chatId, {
-			messages: messages,
-			history: history
-		});
-	};
-
 	const showPreviousMessage = async (message) => {
 		if (message.parentId !== null) {
 			let messageId =
@@ -377,21 +358,12 @@
 				<div class=" flex w-full">
 					<div class=" mr-4">
 						{#if message.role === 'user'}
-							{#if $config === null || !($config?.auth ?? true)}
-								<img
-									src="{$settings.gravatarUrl ? $settings.gravatarUrl : '/user'}.png"
-									class=" max-w-[28px] object-cover rounded-full"
-									alt="User profile"
-									draggable="false"
-								/>
-							{:else}
-								<img
-									src={$user ? $user.profile_image_url : '/user.png'}
-									class=" max-w-[28px] object-cover rounded-full"
-									alt="User profile"
-									draggable="false"
-								/>
-							{/if}
+              <img
+                src="/user.png"
+                class=" max-w-[28px] object-cover rounded-full"
+                alt="User profile"
+                draggable="false"
+              />
 						{:else}
 							<img
 								src="/favicon.png"
@@ -797,75 +769,6 @@
 																	stroke-linecap="round"
 																	stroke-linejoin="round"
 																	d="M15.666 3.888A2.25 2.25 0 0013.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 01-.75.75H9a.75.75 0 01-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 01-2.25 2.25H6.75A2.25 2.25 0 014.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 011.927-.184"
-																/>
-															</svg>
-														</button>
-
-														<button
-															class="{messageIdx + 1 === messages.length
-																? 'visible'
-																: 'invisible group-hover:visible'} p-1 rounded dark:hover:bg-gray-800 transition"
-															on:click={() => {
-																rateMessage(messageIdx, 1);
-															}}
-														>
-															<svg
-																stroke="currentColor"
-																fill="none"
-																stroke-width="2"
-																viewBox="0 0 24 24"
-																stroke-linecap="round"
-																stroke-linejoin="round"
-																class="w-4 h-4"
-																xmlns="http://www.w3.org/2000/svg"
-																><path
-																	d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"
-																/></svg
-															>
-														</button>
-														<button
-															class="{messageIdx + 1 === messages.length
-																? 'visible'
-																: 'invisible group-hover:visible'} p-1 rounded dark:hover:bg-gray-800 transition"
-															on:click={() => {
-																rateMessage(messageIdx, -1);
-															}}
-														>
-															<svg
-																stroke="currentColor"
-																fill="none"
-																stroke-width="2"
-																viewBox="0 0 24 24"
-																stroke-linecap="round"
-																stroke-linejoin="round"
-																class="w-4 h-4"
-																xmlns="http://www.w3.org/2000/svg"
-																><path
-																	d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3zm7-13h2.67A2.31 2.31 0 0 1 22 4v7a2.31 2.31 0 0 1-2.33 2H17"
-																/></svg
-															>
-														</button>
-
-														<button
-															class="{messageIdx + 1 === messages.length
-																? 'visible'
-																: 'invisible group-hover:visible'} p-1 rounded dark:hover:bg-gray-800 transition"
-															on:click={() => {
-																speakMessage(message.content);
-															}}
-														>
-															<svg
-																xmlns="http://www.w3.org/2000/svg"
-																fill="none"
-																viewBox="0 0 24 24"
-																stroke-width="1.5"
-																stroke="currentColor"
-																class="w-4 h-4"
-															>
-																<path
-																	stroke-linecap="round"
-																	stroke-linejoin="round"
-																	d="M19.114 5.636a9 9 0 010 12.728M16.463 8.288a5.25 5.25 0 010 7.424M6.75 8.25l4.72-4.72a.75.75 0 011.28.53v15.88a.75.75 0 01-1.28.53l-4.72-4.72H4.51c-.88 0-1.704-.507-1.938-1.354A9.01 9.01 0 012.25 12c0-.83.112-1.633.322-2.396C2.806 8.756 3.63 8.25 4.51 8.25H6.75z"
 																/>
 															</svg>
 														</button>

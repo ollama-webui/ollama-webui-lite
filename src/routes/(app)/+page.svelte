@@ -5,9 +5,8 @@
 	import { OLLAMA_API_BASE_URL } from '$lib/constants';
 	import { onMount, tick } from 'svelte';
 	import { splitStream } from '$lib/utils';
-	import { goto } from '$app/navigation';
 
-	import { config, models, user, settings, db, chats, chatId } from '$lib/stores';
+	import { settings, db, chats, chatId } from '$lib/stores';
 
 	import MessageInput from '$lib/components/chat/MessageInput.svelte';
 	import Messages from '$lib/components/chat/Messages.svelte';
@@ -22,7 +21,6 @@
 
 	let title = '';
 	let prompt = '';
-	let files = [];
 
 	let messages = [];
 	let history = {
@@ -42,10 +40,6 @@
 		messages = _messages;
 	} else {
 		messages = [];
-	}
-
-	$: if (files) {
-		console.log(files);
 	}
 
 	onMount(async () => {
@@ -124,12 +118,7 @@
 	const sendPrompt = async (userPrompt, parentId, _chatId) => {
 		await Promise.all(
 			selectedModels.map(async (model) => {
-				console.log(model);
-				if ($models.filter((m) => m.name === model)[0].external) {
-					await sendPromptOpenAI(model, userPrompt, parentId, _chatId);
-				} else {
-					await sendPromptOllama(model, userPrompt, parentId, _chatId);
-				}
+				await sendPromptOllama(model, userPrompt, parentId, _chatId);
 			})
 		);
 
@@ -163,30 +152,13 @@
 		const res = await fetch(`${$settings?.API_BASE_URL ?? OLLAMA_API_BASE_URL}/chat`, {
 			method: 'POST',
 			headers: {
-				'Content-Type': 'text/event-stream',
-				...($settings.authHeader && { Authorization: $settings.authHeader }),
-				...($user && { Authorization: `Bearer ${localStorage.token}` })
+				'Content-Type': 'text/event-stream'
 			},
 			body: JSON.stringify({
 				model: model,
-				messages: [
-					$settings.system
-						? {
-								role: 'system',
-								content: $settings.system
-						  }
-						: undefined,
-					...messages
-				]
-					.filter((message) => message)
-					.map((message) => ({
+				messages: messages.map((message) => ({
 						role: message.role,
-						content: message.content,
-						...(message.files && {
-							images: message.files
-								.filter((file) => file.type === 'image')
-								.map((file) => file.url.slice(file.url.indexOf(',') + 1))
-						})
+						content: message.content
 					})),
 				options: {
 					seed: $settings.seed ?? undefined,
@@ -252,16 +224,6 @@
 								};
 								messages = messages;
 
-								if ($settings.notificationEnabled && !document.hasFocus()) {
-									const notification = new Notification(
-										`Ollama - ${model}`,
-										{
-											body: responseMessage.content,
-											icon: '/favicon.png'
-										}
-									);
-								}
-
 								if ($settings.responseAutoCopy) {
 									copyToClipboard(responseMessage.content);
 								}
@@ -283,7 +245,6 @@
 				await $db.updateChatById(_chatId, {
 					title: title === '' ? 'New Chat' : title,
 					models: selectedModels,
-					system: $settings.system ?? undefined,
 					options: {
 						seed: $settings.seed ?? undefined,
 						temperature: $settings.temperature ?? undefined,
@@ -331,198 +292,6 @@
 		}
 	};
 
-	const sendPromptOpenAI = async (model, userPrompt, parentId, _chatId) => {
-		if ($settings.OPENAI_API_KEY) {
-			if (models) {
-				let responseMessageId = uuidv4();
-
-				let responseMessage = {
-					parentId: parentId,
-					id: responseMessageId,
-					childrenIds: [],
-					role: 'assistant',
-					content: '',
-					model: model
-				};
-
-				history.messages[responseMessageId] = responseMessage;
-				history.currentId = responseMessageId;
-				if (parentId !== null) {
-					history.messages[parentId].childrenIds = [
-						...history.messages[parentId].childrenIds,
-						responseMessageId
-					];
-				}
-
-				window.scrollTo({ top: document.body.scrollHeight });
-
-				const res = await fetch(
-					`${$settings.OPENAI_API_BASE_URL ?? 'https://api.openai.com/v1'}/chat/completions`,
-					{
-						method: 'POST',
-						headers: {
-							Authorization: `Bearer ${$settings.OPENAI_API_KEY}`,
-							'Content-Type': 'application/json'
-						},
-						body: JSON.stringify({
-							model: model,
-							stream: true,
-							messages: [
-								$settings.system
-									? {
-											role: 'system',
-											content: $settings.system
-									  }
-									: undefined,
-								...messages
-							]
-								.filter((message) => message)
-								.map((message) => ({
-									role: message.role,
-									...(message.files
-										? {
-												content: [
-													{
-														type: 'text',
-														text: message.content
-													},
-													...message.files
-														.filter((file) => file.type === 'image')
-														.map((file) => ({
-															type: 'image_url',
-															image_url: {
-																url: file.url
-															}
-														}))
-												]
-										  }
-										: { content: message.content })
-								})),
-							temperature: $settings.temperature ?? undefined,
-							top_p: $settings.top_p ?? undefined,
-							num_ctx: $settings.num_ctx ?? undefined,
-							frequency_penalty: $settings.repeat_penalty ?? undefined
-						})
-					}
-				).catch((err) => {
-					console.log(err);
-					return null;
-				});
-
-				if (res && res.ok) {
-					const reader = res.body
-						.pipeThrough(new TextDecoderStream())
-						.pipeThrough(splitStream('\n'))
-						.getReader();
-
-					while (true) {
-						const { value, done } = await reader.read();
-						if (done || stopResponseFlag || _chatId !== $chatId) {
-							responseMessage.done = true;
-							messages = messages;
-							break;
-						}
-
-						try {
-							let lines = value.split('\n');
-
-							for (const line of lines) {
-								if (line !== '') {
-									console.log(line);
-									if (line === 'data: [DONE]') {
-										responseMessage.done = true;
-										messages = messages;
-									} else {
-										let data = JSON.parse(line.replace(/^data: /, ''));
-										console.log(data);
-
-										if (responseMessage.content == '' && data.choices[0].delta.content == '\n') {
-											continue;
-										} else {
-											responseMessage.content += data.choices[0].delta.content ?? '';
-											messages = messages;
-										}
-									}
-								}
-							}
-						} catch (error) {
-							console.log(error);
-						}
-
-						if ($settings.notificationEnabled && !document.hasFocus()) {
-							const notification = new Notification(`OpenAI ${model}`, {
-								body: responseMessage.content,
-								icon: '/favicon.png'
-							});
-						}
-
-						if ($settings.responseAutoCopy) {
-							copyToClipboard(responseMessage.content);
-						}
-
-						if (autoScroll) {
-							window.scrollTo({ top: document.body.scrollHeight });
-						}
-
-						await $db.updateChatById(_chatId, {
-							title: title === '' ? 'New Chat' : title,
-							models: selectedModels,
-							system: $settings.system ?? undefined,
-							options: {
-								seed: $settings.seed ?? undefined,
-								temperature: $settings.temperature ?? undefined,
-								repeat_penalty: $settings.repeat_penalty ?? undefined,
-								top_k: $settings.top_k ?? undefined,
-								top_p: $settings.top_p ?? undefined,
-								num_ctx: $settings.num_ctx ?? undefined,
-								...($settings.options ?? {})
-							},
-							messages: messages,
-							history: history
-						});
-					}
-				} else {
-					if (res !== null) {
-						const error = await res.json();
-						console.log(error);
-						if ('detail' in error) {
-							toast.error(error.detail);
-							responseMessage.content = error.detail;
-						} else {
-							if ('message' in error.error) {
-								toast.error(error.error.message);
-								responseMessage.content = error.error.message;
-							} else {
-								toast.error(error.error);
-								responseMessage.content = error.error;
-							}
-						}
-					} else {
-						toast.error(`Uh-oh! There was an issue connecting to ${model}.`);
-						responseMessage.content = `Uh-oh! There was an issue connecting to ${model}.`;
-					}
-
-					responseMessage.error = true;
-					responseMessage.content = `Uh-oh! There was an issue connecting to ${model}.`;
-					responseMessage.done = true;
-					messages = messages;
-				}
-
-				stopResponseFlag = false;
-				await tick();
-
-				if (autoScroll) {
-					window.scrollTo({ top: document.body.scrollHeight });
-				}
-
-				if (messages.length == 2) {
-					window.history.replaceState(history.state, '', `/c/${_chatId}`);
-					await setChatTitle(_chatId, userPrompt);
-				}
-			}
-		}
-	};
-
 	const submitPrompt = async (userPrompt) => {
 		const _chatId = JSON.parse(JSON.stringify($chatId));
 		console.log('submitPrompt', _chatId);
@@ -540,8 +309,7 @@
 				parentId: messages.length !== 0 ? messages.at(-1).id : null,
 				childrenIds: [],
 				role: 'user',
-				content: userPrompt,
-				files: files.length > 0 ? files : undefined
+				content: userPrompt
 			};
 
 			if (messages.length !== 0) {
@@ -557,7 +325,6 @@
 					id: _chatId,
 					title: 'New Chat',
 					models: selectedModels,
-					system: $settings.system ?? undefined,
 					options: {
 						seed: $settings.seed ?? undefined,
 						temperature: $settings.temperature ?? undefined,
@@ -573,7 +340,6 @@
 			}
 
 			prompt = '';
-			files = [];
 
 			setTimeout(() => {
 				window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
@@ -610,9 +376,7 @@
 			const res = await fetch(`${$settings?.API_BASE_URL ?? OLLAMA_API_BASE_URL}/generate`, {
 				method: 'POST',
 				headers: {
-					'Content-Type': 'text/event-stream',
-					...($settings.authHeader && { Authorization: $settings.authHeader }),
-					...($user && { Authorization: `Bearer ${localStorage.token}` })
+					'Content-Type': 'text/event-stream'
 				},
 				body: JSON.stringify({
 					model: selectedModels[0],
@@ -654,7 +418,7 @@
 	}}
 />
 
-<Navbar {title} shareEnabled={messages.length > 0} />
+<Navbar {title} />
 <div class="min-h-screen w-full flex justify-center">
 	<div class=" py-2.5 flex flex-col justify-between w-full">
 		<div class="max-w-2xl mx-auto w-full px-3 md:px-0 mt-10">
@@ -667,7 +431,6 @@
 				bind:history
 				bind:messages
 				bind:autoScroll
-				bottomPadding={files.length > 0}
 				{sendPrompt}
 				{regenerateResponse}
 			/>
@@ -677,24 +440,6 @@
 	<MessageInput
 		bind:prompt
 		bind:autoScroll
-		suggestionPrompts={[ 
-			{
-				title: ['Help me study', 'vocabulary for a college entrance exam'],
-				content: `Help me study vocabulary: write a sentence for me to fill in the blank, and I'll try to pick the correct option.`
-			},
-			{
-				title: ['Give me ideas', `for what to do with my kids' art`],
-				content: `What are 5 creative things I could do with my kids' art? I don't want to throw them away, but it's also so much clutter.`
-			},
-			{
-				title: ['Tell me a fun fact', 'about the Roman Empire'],
-				content: 'Tell me a random fun fact about the Roman Empire'
-			},
-			{
-				title: ['Show me a code snippet', `of a website's sticky header`],
-				content: `Show me a code snippet of a website's sticky header in CSS and JavaScript.`
-			}
-		]}
 		{messages}
 		{submitPrompt}
 		{stopResponse}

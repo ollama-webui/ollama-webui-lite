@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { fade, blur } from 'svelte/transition';
+	import { fade } from 'svelte/transition';
 
 	export let show = true;
 	let mounted = false;

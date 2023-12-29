@@ -4,8 +4,8 @@
 	import { WEB_UI_VERSION, OLLAMA_API_BASE_URL } from '$lib/constants';
 	import toast from 'svelte-french-toast';
 	import { onMount } from 'svelte';
-	import { config, info, models, settings, user } from '$lib/stores';
-	import { splitStream, getGravatarURL } from '$lib/utils';
+	import { info, models, settings } from '$lib/stores';
+	import { splitStream } from '$lib/utils';
 	import Advanced from './Settings/Advanced.svelte';
 
 	export let show = false;
@@ -23,7 +23,6 @@
 	let API_BASE_URL = OLLAMA_API_BASE_URL;
 	let theme = 'dark';
 	let notificationEnabled = false;
-	let system = '';
 
 	// Advanced
 	let requestFormat = '';
@@ -48,20 +47,6 @@
 	let deleteModelTag = '';
 	let digest = '';
 	let pullProgress = null;
-
-	// Addons
-	let titleAutoGenerate = true;
-	let speechAutoSend = false;
-	let responseAutoCopy = false;
-
-	let gravatarEmail = '';
-	let OPENAI_API_KEY = '';
-	let OPENAI_API_BASE_URL = '';
-
-	// Auth
-	let authEnabled = false;
-	let authType = 'Basic';
-	let authContent = '';
 
 	const checkOllamaConnection = async () => {
 		if (API_BASE_URL === '') {
@@ -102,62 +87,11 @@
 		saveSettings({ requestFormat: requestFormat !== '' ? requestFormat : undefined });
 	};
 
-	const toggleSpeechAutoSend = async () => {
-		speechAutoSend = !speechAutoSend;
-		saveSettings({ speechAutoSend: speechAutoSend });
-	};
-
-	const toggleTitleAutoGenerate = async () => {
-		titleAutoGenerate = !titleAutoGenerate;
-		saveSettings({ titleAutoGenerate: titleAutoGenerate });
-	};
-
-	const toggleNotification = async () => {
-		const permission = await Notification.requestPermission();
-
-		if (permission === 'granted') {
-			notificationEnabled = !notificationEnabled;
-			saveSettings({ notificationEnabled: notificationEnabled });
-		} else {
-			toast.error(
-				'Response notifications cannot be activated as the website permissions have been denied. Please visit your browser settings to grant the necessary access.'
-			);
-		}
-	};
-
-	const toggleResponseAutoCopy = async () => {
-		const permission = await navigator.clipboard
-			.readText()
-			.then(() => {
-				return 'granted';
-			})
-			.catch(() => {
-				return '';
-			});
-
-		console.log(permission);
-
-		if (permission === 'granted') {
-			responseAutoCopy = !responseAutoCopy;
-			saveSettings({ responseAutoCopy: responseAutoCopy });
-		} else {
-			toast.error(
-				'Clipboard write permission denied. Please check your browser settings to grant the necessary access.'
-			);
-		}
-	};
-
-	const toggleAuthHeader = async () => {
-		authEnabled = !authEnabled;
-	};
-
 	const pullModelHandler = async () => {
 		const res = await fetch(`${API_BASE_URL}/pull`, {
 			method: 'POST',
 			headers: {
-				'Content-Type': 'text/event-stream',
-				...($settings.authHeader && { Authorization: $settings.authHeader }),
-				...($user && { Authorization: `Bearer ${localStorage.token}` })
+				'Content-Type': 'text/event-stream'
 			},
 			body: JSON.stringify({
 				name: modelTag
@@ -224,9 +158,7 @@
 		const res = await fetch(`${API_BASE_URL}/delete`, {
 			method: 'DELETE',
 			headers: {
-				'Content-Type': 'text/event-stream',
-				...($settings.authHeader && { Authorization: $settings.authHeader }),
-				...($user && { Authorization: `Bearer ${localStorage.token}` })
+				'Content-Type': 'text/event-stream'
 			},
 			body: JSON.stringify({
 				name: deleteModelTag
@@ -280,9 +212,7 @@
 			method: 'GET',
 			headers: {
 				Accept: 'application/json',
-				'Content-Type': 'application/json',
-				...($settings.authHeader && { Authorization: $settings.authHeader }),
-				...($user && { Authorization: `Bearer ${localStorage.token}` })
+				'Content-Type': 'application/json'
 			}
 		})
 			.then(async (res) => {
@@ -300,48 +230,6 @@
 			});
 		console.log(res);
 		models.push(...(res?.models ?? []));
-
-		// If OpenAI API Key exists
-		if (type === 'all' && $settings.OPENAI_API_KEY) {
-			const API_BASE_URL = $settings.OPENAI_API_BASE_URL ?? 'https://api.openai.com/v1';
-
-			// Validate OPENAI_API_KEY
-			const openaiModelRes = await fetch(`${API_BASE_URL}/models`, {
-				method: 'GET',
-				headers: {
-					'Content-Type': 'application/json',
-					Authorization: `Bearer ${$settings.OPENAI_API_KEY}`
-				}
-			})
-				.then(async (res) => {
-					if (!res.ok) throw await res.json();
-					return res.json();
-				})
-				.catch((error) => {
-					console.log(error);
-					toast.error(`OpenAI: ${error?.error?.message ?? 'Network Problem'}`);
-					return null;
-				});
-
-			const openAIModels = Array.isArray(openaiModelRes)
-				? openaiModelRes
-				: openaiModelRes?.data ?? null;
-
-			models.push(
-				...(openAIModels
-					? [
-							{ name: 'hr' },
-							...openAIModels
-								.map((model) => ({ name: model.id, external: true }))
-								.filter((model) =>
-									API_BASE_URL.includes('openai') ? model.name.includes('gpt') : true
-								)
-					  ]
-					: [])
-			);
-		}
-
-		return models;
 	};
 
 	onMount(() => {
@@ -352,7 +240,6 @@
 		notificationEnabled = settings.notificationEnabled ?? false;
 
 		API_BASE_URL = settings.API_BASE_URL ?? OLLAMA_API_BASE_URL;
-		system = settings.system ?? '';
 
 		requestFormat = settings.requestFormat ?? '';
 
@@ -363,20 +250,6 @@
 		options.top_p = settings.top_p ?? '';
 		options.num_ctx = settings.num_ctx ?? '';
 		options = { ...options, ...settings.options };
-
-		titleAutoGenerate = settings.titleAutoGenerate ?? true;
-		speechAutoSend = settings.speechAutoSend ?? false;
-		responseAutoCopy = settings.responseAutoCopy ?? false;
-
-		gravatarEmail = settings.gravatarEmail ?? '';
-		OPENAI_API_KEY = settings.OPENAI_API_KEY ?? '';
-		OPENAI_API_BASE_URL = settings.OPENAI_API_BASE_URL ?? 'https://api.openai.com/v1';
-
-		authEnabled = settings.authHeader !== undefined ? true : false;
-		if (authEnabled) {
-			authType = settings.authHeader.split(' ')[0];
-			authContent = settings.authHeader.split(' ')[1];
-		}
 	});
 </script>
 
@@ -486,82 +359,6 @@
 
 				<button
 					class="px-2.5 py-2.5 min-w-fit rounded-lg flex-1 md:flex-none flex text-right transition {selectedTab ===
-					'external'
-						? 'bg-gray-200 dark:bg-gray-700'
-						: ' hover:bg-gray-300 dark:hover:bg-gray-800'}"
-					on:click={() => {
-						selectedTab = 'external';
-					}}
-				>
-					<div class=" self-center mr-2">
-						<svg
-							xmlns="http://www.w3.org/2000/svg"
-							viewBox="0 0 16 16"
-							fill="currentColor"
-							class="w-4 h-4"
-						>
-							<path
-								d="M1 9.5A3.5 3.5 0 0 0 4.5 13H12a3 3 0 0 0 .917-5.857 2.503 2.503 0 0 0-3.198-3.019 3.5 3.5 0 0 0-6.628 2.171A3.5 3.5 0 0 0 1 9.5Z"
-							/>
-						</svg>
-					</div>
-					<div class=" self-center">External</div>
-				</button>
-
-				<button
-					class="px-2.5 py-2.5 min-w-fit rounded-lg flex-1 md:flex-none flex text-right transition {selectedTab ===
-					'addons'
-						? 'bg-gray-200 dark:bg-gray-700'
-						: ' hover:bg-gray-300 dark:hover:bg-gray-800'}"
-					on:click={() => {
-						selectedTab = 'addons';
-					}}
-				>
-					<div class=" self-center mr-2">
-						<svg
-							xmlns="http://www.w3.org/2000/svg"
-							viewBox="0 0 20 20"
-							fill="currentColor"
-							class="w-4 h-4"
-						>
-							<path
-								d="M12 4.467c0-.405.262-.75.559-1.027.276-.257.441-.584.441-.94 0-.828-.895-1.5-2-1.5s-2 .672-2 1.5c0 .362.171.694.456.953.29.265.544.6.544.994a.968.968 0 01-1.024.974 39.655 39.655 0 01-3.014-.306.75.75 0 00-.847.847c.14.993.242 1.999.306 3.014A.968.968 0 014.447 10c-.393 0-.729-.253-.994-.544C3.194 9.17 2.862 9 2.5 9 1.672 9 1 9.895 1 11s.672 2 1.5 2c.356 0 .683-.165.94-.441.276-.297.622-.559 1.027-.559a.997.997 0 011.004 1.03 39.747 39.747 0 01-.319 3.734.75.75 0 00.64.842c1.05.146 2.111.252 3.184.318A.97.97 0 0010 16.948c0-.394-.254-.73-.545-.995C9.171 15.693 9 15.362 9 15c0-.828.895-1.5 2-1.5s2 .672 2 1.5c0 .356-.165.683-.441.94-.297.276-.559.622-.559 1.027a.998.998 0 001.03 1.005c1.337-.05 2.659-.162 3.961-.337a.75.75 0 00.644-.644c.175-1.302.288-2.624.337-3.961A.998.998 0 0016.967 12c-.405 0-.75.262-1.027.559-.257.276-.584.441-.94.441-.828 0-1.5-.895-1.5-2s.672-2 1.5-2c.362 0 .694.17.953.455.265.291.601.545.995.545a.97.97 0 00.976-1.024 41.159 41.159 0 00-.318-3.184.75.75 0 00-.842-.64c-1.228.164-2.473.271-3.734.319A.997.997 0 0112 4.467z"
-							/>
-						</svg>
-					</div>
-					<div class=" self-center">Add-ons</div>
-				</button>
-
-				{#if !$config || ($config && !$config.auth)}
-					<button
-						class="px-2.5 py-2.5 min-w-fit rounded-lg flex-1 md:flex-none flex text-right transition {selectedTab ===
-						'auth'
-							? 'bg-gray-200 dark:bg-gray-700'
-							: ' hover:bg-gray-300 dark:hover:bg-gray-800'}"
-						on:click={() => {
-							selectedTab = 'auth';
-						}}
-					>
-						<div class=" self-center mr-2">
-							<svg
-								xmlns="http://www.w3.org/2000/svg"
-								viewBox="0 0 24 24"
-								fill="currentColor"
-								class="w-4 h-4"
-							>
-								<path
-									fill-rule="evenodd"
-									d="M12.516 2.17a.75.75 0 00-1.032 0 11.209 11.209 0 01-7.877 3.08.75.75 0 00-.722.515A12.74 12.74 0 002.25 9.75c0 5.942 4.064 10.933 9.563 12.348a.749.749 0 00.374 0c5.499-1.415 9.563-6.406 9.563-12.348 0-1.39-.223-2.73-.635-3.985a.75.75 0 00-.722-.516l-.143.001c-2.996 0-5.717-1.17-7.734-3.08zm3.094 8.016a.75.75 0 10-1.22-.872l-3.236 4.53L9.53 12.22a.75.75 0 00-1.06 1.06l2.25 2.25a.75.75 0 001.14-.094l3.75-5.25z"
-									clip-rule="evenodd"
-								/>
-							</svg>
-						</div>
-						<div class=" self-center">Authentication</div>
-					</button>
-				{/if}
-
-				<button
-					class="px-2.5 py-2.5 min-w-fit rounded-lg flex-1 md:flex-none flex text-right transition {selectedTab ===
 					'about'
 						? 'bg-gray-200 dark:bg-gray-700'
 						: ' hover:bg-gray-300 dark:hover:bg-gray-800'}"
@@ -631,26 +428,6 @@
 									{/if}
 								</button>
 							</div>
-
-							<div>
-								<div class=" py-0.5 flex w-full justify-between">
-									<div class=" self-center text-xs font-medium">Notification</div>
-
-									<button
-										class="p-1 px-3 text-xs flex rounded transition"
-										on:click={() => {
-											toggleNotification();
-										}}
-										type="button"
-									>
-										{#if notificationEnabled === true}
-											<span class="ml-2 self-center">On</span>
-										{:else}
-											<span class="ml-2 self-center">Off</span>
-										{/if}
-									</button>
-								</div>
-							</div>
 						</div>
 
 						<hr class=" dark:border-gray-700" />
@@ -698,22 +475,12 @@
 
 						<hr class=" dark:border-gray-700" />
 
-						<div>
-							<div class=" mb-2.5 text-sm font-medium">System Prompt</div>
-							<textarea
-								bind:value={system}
-								class="w-full rounded p-4 text-sm dark:text-gray-300 dark:bg-gray-800 outline-none resize-none"
-								rows="4"
-							/>
-						</div>
-
 						<div class="flex justify-end pt-3 text-sm font-medium">
 							<button
 								class=" px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-gray-100 transition rounded"
 								on:click={() => {
 									saveSettings({
 										API_BASE_URL: API_BASE_URL === '' ? OLLAMA_API_BASE_URL : API_BASE_URL,
-										system: system !== '' ? system : undefined
 									});
 									show = false;
 								}}
@@ -891,296 +658,6 @@
 							</div>
 						</div>
 					</div>
-				{:else if selectedTab === 'external'}
-					<form
-						class="flex flex-col h-full justify-between space-y-3 text-sm"
-						on:submit|preventDefault={() => {
-							saveSettings({
-								OPENAI_API_KEY: OPENAI_API_KEY !== '' ? OPENAI_API_KEY : undefined,
-								OPENAI_API_BASE_URL: OPENAI_API_BASE_URL !== '' ? OPENAI_API_BASE_URL : undefined
-							});
-							show = false;
-						}}
-					>
-						<div class=" space-y-3">
-							<div>
-								<div class=" mb-2.5 text-sm font-medium">OpenAI API Key</div>
-								<div class="flex w-full">
-									<div class="flex-1">
-										<input
-											class="w-full rounded py-2 px-4 text-sm dark:text-gray-300 dark:bg-gray-800 outline-none"
-											placeholder="Enter OpenAI API Key"
-											bind:value={OPENAI_API_KEY}
-											autocomplete="off"
-										/>
-									</div>
-								</div>
-								<div class="mt-2 text-xs text-gray-400 dark:text-gray-500">
-									Adds optional support for online models.
-								</div>
-							</div>
-
-							<hr class=" dark:border-gray-700" />
-
-							<div>
-								<div class=" mb-2.5 text-sm font-medium">OpenAI API Base URL</div>
-								<div class="flex w-full">
-									<div class="flex-1">
-										<input
-											class="w-full rounded py-2 px-4 text-sm dark:text-gray-300 dark:bg-gray-800 outline-none"
-											placeholder="Enter OpenAI API Key"
-											bind:value={OPENAI_API_BASE_URL}
-											autocomplete="off"
-										/>
-									</div>
-								</div>
-								<div class="mt-2 text-xs text-gray-400 dark:text-gray-500">
-									WebUI will make requests to <span class=" text-gray-200"
-										>'{OPENAI_API_BASE_URL}/chat'</span
-									>
-								</div>
-							</div>
-						</div>
-
-						<div class="flex justify-end pt-3 text-sm font-medium">
-							<button
-								class=" px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-gray-100 transition rounded"
-								type="submit"
-							>
-								Save
-							</button>
-						</div>
-					</form>
-				{:else if selectedTab === 'addons'}
-					<form
-						class="flex flex-col h-full justify-between space-y-3 text-sm"
-						on:submit|preventDefault={() => {
-							saveSettings({
-								gravatarEmail: gravatarEmail !== '' ? gravatarEmail : undefined,
-								gravatarUrl: gravatarEmail !== '' ? getGravatarURL(gravatarEmail) : undefined
-							});
-							show = false;
-						}}
-					>
-						<div class=" space-y-3">
-							<div>
-								<div class=" mb-1 text-sm font-medium">WebUI Add-ons</div>
-
-								<div>
-									<div class=" py-0.5 flex w-full justify-between">
-										<div class=" self-center text-xs font-medium">Title Auto Generation</div>
-
-										<button
-											class="p-1 px-3 text-xs flex rounded transition"
-											on:click={() => {
-												toggleTitleAutoGenerate();
-											}}
-											type="button"
-										>
-											{#if titleAutoGenerate === true}
-												<span class="ml-2 self-center">On</span>
-											{:else}
-												<span class="ml-2 self-center">Off</span>
-											{/if}
-										</button>
-									</div>
-								</div>
-
-								<div>
-									<div class=" py-0.5 flex w-full justify-between">
-										<div class=" self-center text-xs font-medium">Voice Input Auto-Send</div>
-
-										<button
-											class="p-1 px-3 text-xs flex rounded transition"
-											on:click={() => {
-												toggleSpeechAutoSend();
-											}}
-											type="button"
-										>
-											{#if speechAutoSend === true}
-												<span class="ml-2 self-center">On</span>
-											{:else}
-												<span class="ml-2 self-center">Off</span>
-											{/if}
-										</button>
-									</div>
-								</div>
-
-								<div>
-									<div class=" py-0.5 flex w-full justify-between">
-										<div class=" self-center text-xs font-medium">
-											Response AutoCopy to Clipboard
-										</div>
-
-										<button
-											class="p-1 px-3 text-xs flex rounded transition"
-											on:click={() => {
-												toggleResponseAutoCopy();
-											}}
-											type="button"
-										>
-											{#if responseAutoCopy === true}
-												<span class="ml-2 self-center">On</span>
-											{:else}
-												<span class="ml-2 self-center">Off</span>
-											{/if}
-										</button>
-									</div>
-								</div>
-							</div>
-
-							<hr class=" dark:border-gray-700" />
-							<div>
-								<div class=" mb-2.5 text-sm font-medium">
-									Gravatar Email <span class=" text-gray-400 text-sm">(optional)</span>
-								</div>
-								<div class="flex w-full">
-									<div class="flex-1">
-										<input
-											class="w-full rounded py-2 px-4 text-sm dark:text-gray-300 dark:bg-gray-800 outline-none"
-											placeholder="Enter Your Email"
-											bind:value={gravatarEmail}
-											autocomplete="off"
-											type="email"
-										/>
-									</div>
-								</div>
-								<div class="mt-2 text-xs text-gray-400 dark:text-gray-500">
-									Changes user profile image to match your <a
-										class=" text-gray-500 dark:text-gray-300 font-medium"
-										href="https://gravatar.com/"
-										target="_blank">Gravatar.</a
-									>
-								</div>
-							</div>
-						</div>
-
-						<div class="flex justify-end pt-3 text-sm font-medium">
-							<button
-								class=" px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-gray-100 transition rounded"
-								type="submit"
-							>
-								Save
-							</button>
-						</div>
-					</form>
-				{:else if selectedTab === 'auth'}
-					<form
-						class="flex flex-col h-full justify-between space-y-3 text-sm"
-						on:submit|preventDefault={() => {
-							console.log('auth save');
-							saveSettings({
-								authHeader: authEnabled ? `${authType} ${authContent}` : undefined
-							});
-							show = false;
-						}}
-					>
-						<div class=" space-y-3">
-							<div>
-								<div class=" py-1 flex w-full justify-between">
-									<div class=" self-center text-sm font-medium">Authorization Header</div>
-
-									<button
-										class="p-1 px-3 text-xs flex rounded transition"
-										type="button"
-										on:click={() => {
-											toggleAuthHeader();
-										}}
-									>
-										{#if authEnabled === true}
-											<svg
-												xmlns="http://www.w3.org/2000/svg"
-												viewBox="0 0 24 24"
-												fill="currentColor"
-												class="w-4 h-4"
-											>
-												<path
-													fill-rule="evenodd"
-													d="M12 1.5a5.25 5.25 0 00-5.25 5.25v3a3 3 0 00-3 3v6.75a3 3 0 003 3h10.5a3 3 0 003-3v-6.75a3 3 0 00-3-3v-3c0-2.9-2.35-5.25-5.25-5.25zm3.75 8.25v-3a3.75 3.75 0 10-7.5 0v3h7.5z"
-													clip-rule="evenodd"
-												/>
-											</svg>
-
-											<span class="ml-2 self-center"> On </span>
-										{:else}
-											<svg
-												xmlns="http://www.w3.org/2000/svg"
-												viewBox="0 0 24 24"
-												fill="currentColor"
-												class="w-4 h-4"
-											>
-												<path
-													d="M18 1.5c2.9 0 5.25 2.35 5.25 5.25v3.75a.75.75 0 01-1.5 0V6.75a3.75 3.75 0 10-7.5 0v3a3 3 0 013 3v6.75a3 3 0 01-3 3H3.75a3 3 0 01-3-3v-6.75a3 3 0 013-3h9v-3c0-2.9 2.35-5.25 5.25-5.25z"
-												/>
-											</svg>
-
-											<span class="ml-2 self-center">Off</span>
-										{/if}
-									</button>
-								</div>
-							</div>
-
-							{#if authEnabled}
-								<hr class=" dark:border-gray-700" />
-
-								<div class="mt-2">
-									<div class=" py-1 flex w-full space-x-2">
-										<button
-											class=" py-1 font-semibold flex rounded transition"
-											on:click={() => {
-												authType = authType === 'Basic' ? 'Bearer' : 'Basic';
-											}}
-											type="button"
-										>
-											{#if authType === 'Basic'}
-												<span class="self-center mr-2">Basic</span>
-											{:else if authType === 'Bearer'}
-												<span class="self-center mr-2">Bearer</span>
-											{/if}
-										</button>
-
-										<div class="flex-1">
-											<input
-												class="w-full rounded py-2 px-4 text-sm dark:text-gray-300 dark:bg-gray-800 outline-none"
-												placeholder="Enter Authorization Header Content"
-												bind:value={authContent}
-											/>
-										</div>
-									</div>
-									<div class="mt-2 text-xs text-gray-400 dark:text-gray-500">
-										Toggle between <span class=" text-gray-500 dark:text-gray-300 font-medium"
-											>'Basic'</span
-										>
-										and <span class=" text-gray-500 dark:text-gray-300 font-medium">'Bearer'</span> by
-										clicking on the label next to the input.
-									</div>
-								</div>
-
-								<hr class=" dark:border-gray-700" />
-
-								<div>
-									<div class=" mb-2.5 text-sm font-medium">Preview Authorization Header</div>
-									<textarea
-										value={JSON.stringify({
-											Authorization: `${authType} ${authContent}`
-										})}
-										class="w-full rounded p-4 text-sm dark:text-gray-300 dark:bg-gray-800 outline-none resize-none"
-										rows="2"
-										disabled
-									/>
-								</div>
-							{/if}
-						</div>
-
-						<div class="flex justify-end pt-3 text-sm font-medium">
-							<button
-								class=" px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-gray-100 transition rounded"
-								type="submit"
-							>
-								Save
-							</button>
-						</div>
-					</form>
 				{:else if selectedTab === 'about'}
 					<div class="flex flex-col h-full justify-between space-y-3 text-sm mb-6">
 						<div class=" space-y-3">
@@ -1188,7 +665,7 @@
 								<div class=" mb-2.5 text-sm font-medium">Ollama Web UI Version</div>
 								<div class="flex w-full">
 									<div class="flex-1 text-xs text-gray-700 dark:text-gray-200">
-										{$config && $config.version ? $config.version : WEB_UI_VERSION}
+										{WEB_UI_VERSION}
 									</div>
 								</div>
 							</div>

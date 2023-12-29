@@ -5,9 +5,7 @@
 	import { goto } from '$app/navigation';
 
 	import {
-		config,
 		info,
-		user,
 		showSettings,
 		settings,
 		models,
@@ -30,9 +28,7 @@
 			method: 'GET',
 			headers: {
 				Accept: 'application/json',
-				'Content-Type': 'application/json',
-				...($settings.authHeader && { Authorization: $settings.authHeader }),
-				...($user && { Authorization: `Bearer ${localStorage.token}` })
+				'Content-Type': 'application/json'
 			}
 		})
 			.then(async (res) => {
@@ -50,47 +46,7 @@
 			});
 		console.log(res);
 		models.push(...(res?.models ?? []));
-
-		// If OpenAI API Key exists
-		if ($settings.OPENAI_API_KEY) {
-			// Validate OPENAI_API_KEY
-
-			const API_BASE_URL = $settings.OPENAI_API_BASE_URL ?? 'https://api.openai.com/v1';
-			const openaiModelRes = await fetch(`${API_BASE_URL}/models`, {
-				method: 'GET',
-				headers: {
-					'Content-Type': 'application/json',
-					Authorization: `Bearer ${$settings.OPENAI_API_KEY}`
-				}
-			})
-				.then(async (res) => {
-					if (!res.ok) throw await res.json();
-					return res.json();
-				})
-				.catch((error) => {
-					console.log(error);
-					toast.error(`OpenAI: ${error?.error?.message ?? 'Network Problem'}`);
-					return null;
-				});
-
-			const openAIModels = Array.isArray(openaiModelRes)
-				? openaiModelRes
-				: openaiModelRes?.data ?? null;
-
-			models.push(
-				...(openAIModels
-					? [
-							{ name: 'hr' },
-							...openAIModels
-								.map((model) => ({ name: model.id, external: true }))
-								.filter((model) =>
-									API_BASE_URL.includes('openai') ? model.name.includes('gpt') : true
-								)
-					  ]
-					: [])
-			);
-		}
-
+		
 		return models;
 	};
 
@@ -172,9 +128,7 @@
 			method: 'GET',
 			headers: {
 				Accept: 'application/json',
-				'Content-Type': 'application/json',
-				...($settings.authHeader && { Authorization: $settings.authHeader }),
-				...($user && { Authorization: `Bearer ${localStorage.token}` })
+				'Content-Type': 'application/json'
 			}
 		})
 			.then(async (res) => {
@@ -211,10 +165,6 @@
 	};
 
 	onMount(async () => {
-		if ($config && $config.auth && $user === undefined) {
-			await goto('/auth');
-		}
-
 		await settings.set(JSON.parse(localStorage.getItem('settings') ?? '{}'));
 
 		await models.set(await getModels());
