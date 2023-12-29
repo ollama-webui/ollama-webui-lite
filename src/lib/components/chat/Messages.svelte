@@ -8,7 +8,7 @@
 	import auto_render from 'katex/dist/contrib/auto-render.mjs';
 	import 'katex/dist/katex.min.css';
 
-	import { chatId, config, db, modelfiles, settings, user } from '$lib/stores';
+	import { chatId, config, db, settings, user } from '$lib/stores';
 	import { tick } from 'svelte';
 
 	import toast from 'svelte-french-toast';
@@ -21,8 +21,6 @@
 	export let selectedModels;
 	export let history = {};
 	export let messages = [];
-
-	export let selectedModelfile = null;
 
 	$: if (messages && messages.length > 0 && (messages.at(-1).done ?? false)) {
 		(async () => {
@@ -361,42 +359,15 @@
 {#if messages.length == 0}
 	<div class="m-auto text-center max-w-md pb-56 px-2">
 		<div class="flex justify-center mt-8">
-			{#if selectedModelfile && selectedModelfile.imageUrl}
-				<img
-					src={selectedModelfile?.imageUrl}
-					alt="modelfile"
-					class=" w-20 mb-2 rounded-full"
-					draggable="false"
-				/>
-			{:else}
-				<img
-					src="/ollama.png"
-					class=" w-16 invert-[10%] dark:invert-[100%] rounded-full"
-					alt="ollama"
-					draggable="false"
-				/>
-			{/if}
+			<img
+				src="/ollama.png"
+				class=" w-16 invert-[10%] dark:invert-[100%] rounded-full"
+				alt="ollama"
+				draggable="false"
+			/>
 		</div>
 		<div class=" mt-2 text-2xl text-gray-800 dark:text-gray-100 font-semibold">
-			{#if selectedModelfile}
-				<span class=" capitalize">
-					{selectedModelfile.title}
-				</span>
-				<div class="mt-0.5 text-base font-normal text-gray-600 dark:text-gray-400">
-					{selectedModelfile.desc}
-				</div>
-				{#if selectedModelfile.user}
-					<div class="mt-0.5 text-sm font-normal text-gray-500 dark:text-gray-500">
-						By <a href="https://ollamahub.com/m/{selectedModelfile.user.username}"
-							>{selectedModelfile.user.name
-								? selectedModelfile.user.name
-								: `@${selectedModelfile.user.username}`}</a
-						>
-					</div>
-				{/if}
-			{:else}
-				How can I help you today?
-			{/if}
+			How can I help you today?
 		</div>
 	</div>
 {:else}
@@ -421,13 +392,6 @@
 									draggable="false"
 								/>
 							{/if}
-						{:else if selectedModelfile}
-							<img
-								src={selectedModelfile?.imageUrl ?? '/favicon.png'}
-								class=" max-w-[28px] object-cover rounded-full"
-								alt="Ollama profile"
-								draggable="false"
-							/>
 						{:else}
 							<img
 								src="/favicon.png"
@@ -442,10 +406,6 @@
 						<div class=" self-center font-bold mb-0.5">
 							{#if message.role === 'user'}
 								You
-							{:else if selectedModelfile}
-								<span class="capitalize">
-									{selectedModelfile.title}
-								</span>
 							{:else}
 								Ollama <span class=" text-gray-500 text-sm font-medium"
 									>{message.model ? ` ${message.model}` : ''}</span

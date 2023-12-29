@@ -14,7 +14,6 @@
 		db,
 		chats,
 		chatId,
-		modelfiles
 	} from '$lib/stores';
 
 	import SettingsModal from '$lib/components/chat/SettingsModal.svelte';
@@ -219,11 +218,6 @@
 		await settings.set(JSON.parse(localStorage.getItem('settings') ?? '{}'));
 
 		await models.set(await getModels());
-		await modelfiles.set(JSON.parse(localStorage.getItem('modelfiles') ?? '[]'));
-
-		modelfiles.subscribe(async () => {
-			await models.set(await getModels());
-		});
 
 		let _db = await getDB();
 		await db.set(_db);

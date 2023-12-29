@@ -7,8 +7,6 @@
 	export let suggestionPrompts = [];
 	export let autoScroll = true;
 
-	export let files = [];
-
 	export let prompt = '';
 	export let messages = [];
 </script>

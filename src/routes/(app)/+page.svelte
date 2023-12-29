@@ -7,7 +7,7 @@
 	import { splitStream } from '$lib/utils';
 	import { goto } from '$app/navigation';
 
-	import { config, models, modelfiles, user, settings, db, chats, chatId } from '$lib/stores';
+	import { config, models, user, settings, db, chats, chatId } from '$lib/stores';
 
 	import MessageInput from '$lib/components/chat/MessageInput.svelte';
 	import Messages from '$lib/components/chat/Messages.svelte';
@@ -19,12 +19,6 @@
 	let autoScroll = true;
 
 	let selectedModels = [''];
-	let selectedModelfile = null;
-	$: selectedModelfile =
-		selectedModels.length === 1 &&
-		$modelfiles.filter((modelfile) => modelfile.tagName === selectedModels[0]).length > 0
-			? $modelfiles.filter((modelfile) => modelfile.tagName === selectedModels[0])[0]
-			: null;
 
 	let title = '';
 	let prompt = '';
@@ -260,15 +254,10 @@
 
 								if ($settings.notificationEnabled && !document.hasFocus()) {
 									const notification = new Notification(
-										selectedModelfile
-											? `${
-													selectedModelfile.title.charAt(0).toUpperCase() +
-													selectedModelfile.title.slice(1)
-											  }`
-											: `Ollama - ${model}`,
+										`Ollama - ${model}`,
 										{
 											body: responseMessage.content,
-											icon: selectedModelfile?.imageUrl ?? '/favicon.png'
+											icon: '/favicon.png'
 										}
 									);
 								}
@@ -675,7 +664,6 @@
 		<div class=" h-full mt-10 mb-32 w-full flex flex-col">
 			<Messages
 				{selectedModels}
-				{selectedModelfile}
 				bind:history
 				bind:messages
 				bind:autoScroll
@@ -687,10 +675,9 @@
 	</div>
 
 	<MessageInput
-		bind:files
 		bind:prompt
 		bind:autoScroll
-		suggestionPrompts={selectedModelfile?.suggestionPrompts ?? [
+		suggestionPrompts={[ 
 			{
 				title: ['Help me study', 'vocabulary for a college entrance exam'],
 				content: `Help me study vocabulary: write a sentence for me to fill in the blank, and I'll try to pick the correct option.`
