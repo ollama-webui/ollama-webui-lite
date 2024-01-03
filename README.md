@@ -52,4 +52,12 @@ Follow these steps to set up Ollama-webui-lite:
    npm run dev
    ```
 
-Feel free to reach out for any assistance or to request additional features!
+## License 📜
+
+This project is licensed under the [MIT License](LICENSE) - see the [LICENSE](LICENSE) file for details. 📄
+
+## Support 💬
+
+If you have any questions, suggestions, or need assistance, please open an issue or join our
+[Ollama Web UI Discord community](https://discord.gg/5rJgQTnV4s) or
+[Ollama Discord community](https://discord.gg/ollama) to connect with us! 🤝
