@@ -1,8 +1,8 @@
-# Ollama Web UI Lite
+# Ollama Web UI Lite 🦙
 
 Ollama Web UI Lite is a streamlined version of [Ollama Web UI](https://github.com/ollama-webui/ollama-webui), designed to offer a simplified user interface with minimal features and reduced complexity. The primary focus of this project is on achieving cleaner code through a full TypeScript migration, adopting a more modular architecture, ensuring comprehensive test coverage, and implementing a robust CI/CD pipeline.
 
-## Features
+## Features ⭐
 
 The current version includes only the essential functionalities found in the full [Ollama Web UI](https://github.com/ollama-webui/ollama-webui), such as pulling and deleting models, engaging in conversations with one or multiple models, chat import/export, etc.
 
@@ -15,7 +15,7 @@ We are committed to maintaining this repository and progressively working throug
 - **CI/CD Integration:** Establish a continuous integration and continuous deployment pipeline for automated testing and deployment.
 - **Additional Features:** Add new features based on user requests.
 
-## Installation
+## Installation 🚀
 
 Before proceeding with the installation, ensure that you have the following prerequisites:
 
