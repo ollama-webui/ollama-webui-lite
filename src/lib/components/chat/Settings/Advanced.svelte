@@ -2,17 +2,17 @@
 	export let options = {
 		// Advanced
 		seed: 0,
-		stop: '',
-		temperature: '',
-		repeat_penalty: '',
-		repeat_last_n: '',
-		mirostat: '',
-		mirostat_eta: '',
-		mirostat_tau: '',
-		top_k: '',
-		top_p: '',
-		tfs_z: '',
-		num_ctx: ''
+		stop: "",
+		temperature: "",
+		repeat_penalty: "",
+		repeat_last_n: "",
+		mirostat: "",
+		mirostat_eta: "",
+		mirostat_tau: "",
+		top_k: "",
+		top_p: "",
+		tfs_z: "",
+		num_ctx: ""
 	};
 </script>
 
@@ -56,10 +56,10 @@
 				class="p-1 px-3 text-xs flex rounded transition"
 				type="button"
 				on:click={() => {
-					options.temperature = options.temperature === '' ? 0.8 : '';
+					options.temperature = options.temperature === "" ? 0.8 : "";
 				}}
 			>
-				{#if options.temperature === ''}
+				{#if options.temperature === ""}
 					<span class="ml-2 self-center"> Default </span>
 				{:else}
 					<span class="ml-2 self-center"> Custom </span>
@@ -67,7 +67,7 @@
 			</button>
 		</div>
 
-		{#if options.temperature !== ''}
+		{#if options.temperature !== ""}
 			<div class="flex mt-0.5 space-x-2">
 				<div class=" flex-1">
 					<input
@@ -102,10 +102,10 @@
 				class="p-1 px-3 text-xs flex rounded transition"
 				type="button"
 				on:click={() => {
-					options.mirostat = options.mirostat === '' ? 0 : '';
+					options.mirostat = options.mirostat === "" ? 0 : "";
 				}}
 			>
-				{#if options.mirostat === ''}
+				{#if options.mirostat === ""}
 					<span class="ml-2 self-center"> Default </span>
 				{:else}
 					<span class="ml-2 self-center"> Custom </span>
@@ -113,7 +113,7 @@
 			</button>
 		</div>
 
-		{#if options.mirostat !== ''}
+		{#if options.mirostat !== ""}
 			<div class="flex mt-0.5 space-x-2">
 				<div class=" flex-1">
 					<input
@@ -148,10 +148,10 @@
 				class="p-1 px-3 text-xs flex rounded transition"
 				type="button"
 				on:click={() => {
-					options.mirostat_eta = options.mirostat_eta === '' ? 0.1 : '';
+					options.mirostat_eta = options.mirostat_eta === "" ? 0.1 : "";
 				}}
 			>
-				{#if options.mirostat_eta === ''}
+				{#if options.mirostat_eta === ""}
 					<span class="ml-2 self-center"> Default </span>
 				{:else}
 					<span class="ml-2 self-center"> Custom </span>
@@ -159,7 +159,7 @@
 			</button>
 		</div>
 
-		{#if options.mirostat_eta !== ''}
+		{#if options.mirostat_eta !== ""}
 			<div class="flex mt-0.5 space-x-2">
 				<div class=" flex-1">
 					<input
@@ -194,10 +194,10 @@
 				class="p-1 px-3 text-xs flex rounded transition"
 				type="button"
 				on:click={() => {
-					options.mirostat_tau = options.mirostat_tau === '' ? 5.0 : '';
+					options.mirostat_tau = options.mirostat_tau === "" ? 5.0 : "";
 				}}
 			>
-				{#if options.mirostat_tau === ''}
+				{#if options.mirostat_tau === ""}
 					<span class="ml-2 self-center"> Default </span>
 				{:else}
 					<span class="ml-2 self-center"> Custom </span>
@@ -205,7 +205,7 @@
 			</button>
 		</div>
 
-		{#if options.mirostat_tau !== ''}
+		{#if options.mirostat_tau !== ""}
 			<div class="flex mt-0.5 space-x-2">
 				<div class=" flex-1">
 					<input
@@ -240,10 +240,10 @@
 				class="p-1 px-3 text-xs flex rounded transition"
 				type="button"
 				on:click={() => {
-					options.top_k = options.top_k === '' ? 40 : '';
+					options.top_k = options.top_k === "" ? 40 : "";
 				}}
 			>
-				{#if options.top_k === ''}
+				{#if options.top_k === ""}
 					<span class="ml-2 self-center"> Default </span>
 				{:else}
 					<span class="ml-2 self-center"> Custom </span>
@@ -251,7 +251,7 @@
 			</button>
 		</div>
 
-		{#if options.top_k !== ''}
+		{#if options.top_k !== ""}
 			<div class="flex mt-0.5 space-x-2">
 				<div class=" flex-1">
 					<input
@@ -286,10 +286,10 @@
 				class="p-1 px-3 text-xs flex rounded transition"
 				type="button"
 				on:click={() => {
-					options.top_p = options.top_p === '' ? 0.9 : '';
+					options.top_p = options.top_p === "" ? 0.9 : "";
 				}}
 			>
-				{#if options.top_p === ''}
+				{#if options.top_p === ""}
 					<span class="ml-2 self-center"> Default </span>
 				{:else}
 					<span class="ml-2 self-center"> Custom </span>
@@ -297,7 +297,7 @@
 			</button>
 		</div>
 
-		{#if options.top_p !== ''}
+		{#if options.top_p !== ""}
 			<div class="flex mt-0.5 space-x-2">
 				<div class=" flex-1">
 					<input
@@ -332,10 +332,10 @@
 				class="p-1 px-3 text-xs flex rounded transition"
 				type="button"
 				on:click={() => {
-					options.repeat_penalty = options.repeat_penalty === '' ? 1.1 : '';
+					options.repeat_penalty = options.repeat_penalty === "" ? 1.1 : "";
 				}}
 			>
-				{#if options.repeat_penalty === ''}
+				{#if options.repeat_penalty === ""}
 					<span class="ml-2 self-center"> Default </span>
 				{:else}
 					<span class="ml-2 self-center"> Custom </span>
@@ -343,7 +343,7 @@
 			</button>
 		</div>
 
-		{#if options.repeat_penalty !== ''}
+		{#if options.repeat_penalty !== ""}
 			<div class="flex mt-0.5 space-x-2">
 				<div class=" flex-1">
 					<input
@@ -378,10 +378,10 @@
 				class="p-1 px-3 text-xs flex rounded transition"
 				type="button"
 				on:click={() => {
-					options.repeat_last_n = options.repeat_last_n === '' ? 64 : '';
+					options.repeat_last_n = options.repeat_last_n === "" ? 64 : "";
 				}}
 			>
-				{#if options.repeat_last_n === ''}
+				{#if options.repeat_last_n === ""}
 					<span class="ml-2 self-center"> Default </span>
 				{:else}
 					<span class="ml-2 self-center"> Custom </span>
@@ -389,7 +389,7 @@
 			</button>
 		</div>
 
-		{#if options.repeat_last_n !== ''}
+		{#if options.repeat_last_n !== ""}
 			<div class="flex mt-0.5 space-x-2">
 				<div class=" flex-1">
 					<input
@@ -424,10 +424,10 @@
 				class="p-1 px-3 text-xs flex rounded transition"
 				type="button"
 				on:click={() => {
-					options.tfs_z = options.tfs_z === '' ? 1 : '';
+					options.tfs_z = options.tfs_z === "" ? 1 : "";
 				}}
 			>
-				{#if options.tfs_z === ''}
+				{#if options.tfs_z === ""}
 					<span class="ml-2 self-center"> Default </span>
 				{:else}
 					<span class="ml-2 self-center"> Custom </span>
@@ -435,7 +435,7 @@
 			</button>
 		</div>
 
-		{#if options.tfs_z !== ''}
+		{#if options.tfs_z !== ""}
 			<div class="flex mt-0.5 space-x-2">
 				<div class=" flex-1">
 					<input
@@ -470,10 +470,10 @@
 				class="p-1 px-3 text-xs flex rounded transition"
 				type="button"
 				on:click={() => {
-					options.num_ctx = options.num_ctx === '' ? 2048 : '';
+					options.num_ctx = options.num_ctx === "" ? 2048 : "";
 				}}
 			>
-				{#if options.num_ctx === ''}
+				{#if options.num_ctx === ""}
 					<span class="ml-2 self-center"> Default </span>
 				{:else}
 					<span class="ml-2 self-center"> Custom </span>
@@ -481,7 +481,7 @@
 			</button>
 		</div>
 
-		{#if options.num_ctx !== ''}
+		{#if options.num_ctx !== ""}
 			<div class="flex mt-0.5 space-x-2">
 				<div class=" flex-1">
 					<input

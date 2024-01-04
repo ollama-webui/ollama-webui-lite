@@ -1,11 +1,11 @@
-import { writable } from 'svelte/store';
+import { writable } from "svelte/store";
 
 // Backend
 export const info = writable({});
 
 // Frontend
 export const db = writable(undefined);
-export const chatId = writable('');
+export const chatId = writable("");
 export const chats = writable([]);
 export const models = writable([]);
 export const settings = writable({});

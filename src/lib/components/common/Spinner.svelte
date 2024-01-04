@@ -1,6 +1,6 @@
 <script lang="ts">
-	export let className: string = 'text-white';
-	export let theme: 'blue' | 'white' | 'black' = 'white';
+	export let className: string = "text-white";
+	export let theme: "blue" | "white" | "black" = "white";
 </script>
 
 <div class="flex justify-center text-center {className}">

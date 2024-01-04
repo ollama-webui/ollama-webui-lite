@@ -1,14 +1,14 @@
 <script lang="ts">
-	import { models, showSettings, settings } from '$lib/stores';
-	import toast from 'svelte-french-toast';
+	import { models, showSettings, settings } from "$lib/stores";
+	import toast from "svelte-french-toast";
 
-	export let selectedModels = [''];
+	export let selectedModels = [""];
 	export let disabled = false;
 
 	const saveDefaultModel = () => {
 		settings.set({ ...$settings, models: selectedModels });
-		localStorage.setItem('settings', JSON.stringify($settings));
-		toast.success('Default model updated');
+		localStorage.setItem("settings", JSON.stringify($settings));
+		toast.success("Default model updated");
 	};
 </script>
 
@@ -24,7 +24,7 @@
 				<option class=" text-gray-700" value="" selected>Select a model</option>
 
 				{#each $models as model}
-					{#if model.name === 'hr'}
+					{#if model.name === "hr"}
 						<hr />
 					{:else}
 						<option value={model.name} class="text-gray-700 text-lg">{model.name}</option>
@@ -40,7 +40,7 @@
 					disabled={selectedModels.length === 3 || disabled}
 					on:click={() => {
 						if (selectedModels.length < 3) {
-							selectedModels = [...selectedModels, ''];
+							selectedModels = [...selectedModels, ""];
 						}
 					}}
 				>

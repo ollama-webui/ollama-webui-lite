@@ -1,17 +1,17 @@
 <script lang="ts">
-	import { marked } from 'marked';
+	import { marked } from "marked";
 
-	import { v4 as uuidv4 } from 'uuid';
-	import tippy from 'tippy.js';
-	import hljs from 'highlight.js';
-	import 'highlight.js/styles/github-dark.min.css';
-	import auto_render from 'katex/dist/contrib/auto-render.mjs';
-	import 'katex/dist/katex.min.css';
+	import { v4 as uuidv4 } from "uuid";
+	import tippy from "tippy.js";
+	import hljs from "highlight.js";
+	import "highlight.js/styles/github-dark.min.css";
+	import auto_render from "katex/dist/contrib/auto-render.mjs";
+	import "katex/dist/katex.min.css";
 
-	import { chatId, db } from '$lib/stores';
-	import { tick } from 'svelte';
+	import { chatId, db } from "$lib/stores";
+	import { tick } from "svelte";
 
-	import toast from 'svelte-french-toast';
+	import toast from "svelte-french-toast";
 
 	export let sendPrompt: Function;
 	export let regenerateResponse: Function;
@@ -37,21 +37,21 @@
 								Math.round(
 									((message.info.eval_count ?? 0) / (message.info.eval_duration / 1000000000)) * 100
 								) / 100
-							} tokens` ?? 'N/A'
+							} tokens` ?? "N/A"
 						}<br/>
 						total_duration: ${
-							Math.round(((message.info.total_duration ?? 0) / 1000000) * 100) / 100 ?? 'N/A'
+							Math.round(((message.info.total_duration ?? 0) / 1000000) * 100) / 100 ?? "N/A"
 						}ms<br/>
 						load_duration: ${
-							Math.round(((message.info.load_duration ?? 0) / 1000000) * 100) / 100 ?? 'N/A'
+							Math.round(((message.info.load_duration ?? 0) / 1000000) * 100) / 100 ?? "N/A"
 						}ms<br/>
-						prompt_eval_count: ${message.info.prompt_eval_count ?? 'N/A'}<br/>
+						prompt_eval_count: ${message.info.prompt_eval_count ?? "N/A"}<br/>
 						prompt_eval_duration: ${
-							Math.round(((message.info.prompt_eval_duration ?? 0) / 1000000) * 100) / 100 ?? 'N/A'
+							Math.round(((message.info.prompt_eval_duration ?? 0) / 1000000) * 100) / 100 ?? "N/A"
 						}ms<br/>
-						eval_count: ${message.info.eval_count ?? 'N/A'}<br/>
+						eval_count: ${message.info.eval_count ?? "N/A"}<br/>
 						eval_duration: ${
-							Math.round(((message.info.eval_duration ?? 0) / 1000000) * 100) / 100 ?? 'N/A'
+							Math.round(((message.info.eval_duration ?? 0) / 1000000) * 100) / 100 ?? "N/A"
 						}ms</span>`,
 						allowHTML: true
 					});
@@ -63,50 +63,50 @@
 	$: if (autoScroll && bottomPadding) {
 		(async () => {
 			await tick();
-			window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+			window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
 		})();
 	}
 
 	const createCopyCodeBlockButton = () => {
 		// use a class selector if available
-		let blocks = document.querySelectorAll('pre');
+		let blocks = document.querySelectorAll("pre");
 
 		blocks.forEach((block) => {
 			// only add button if browser supports Clipboard API
 
-			if (navigator.clipboard && block.childNodes.length < 2 && block.id !== 'user-message') {
-				let code = block.querySelector('code');
+			if (navigator.clipboard && block.childNodes.length < 2 && block.id !== "user-message") {
+				let code = block.querySelector("code");
 				code.style.borderTopRightRadius = 0;
 				code.style.borderTopLeftRadius = 0;
 
-				let topBarDiv = document.createElement('div');
-				topBarDiv.style.backgroundColor = '#202123';
-				topBarDiv.style.overflowX = 'auto';
-				topBarDiv.style.display = 'flex';
-				topBarDiv.style.justifyContent = 'space-between';
-				topBarDiv.style.padding = '0 1rem';
-				topBarDiv.style.paddingTop = '4px';
-				topBarDiv.style.borderTopRightRadius = '8px';
-				topBarDiv.style.borderTopLeftRadius = '8px';
+				let topBarDiv = document.createElement("div");
+				topBarDiv.style.backgroundColor = "#202123";
+				topBarDiv.style.overflowX = "auto";
+				topBarDiv.style.display = "flex";
+				topBarDiv.style.justifyContent = "space-between";
+				topBarDiv.style.padding = "0 1rem";
+				topBarDiv.style.paddingTop = "4px";
+				topBarDiv.style.borderTopRightRadius = "8px";
+				topBarDiv.style.borderTopLeftRadius = "8px";
 
-				let langDiv = document.createElement('div');
+				let langDiv = document.createElement("div");
 
-				let codeClassNames = code?.className.split(' ');
+				let codeClassNames = code?.className.split(" ");
 				langDiv.textContent =
-					codeClassNames[0] === 'hljs' ? codeClassNames[1].slice(9) : codeClassNames[0].slice(9);
-				langDiv.style.color = 'white';
-				langDiv.style.margin = '4px';
-				langDiv.style.fontSize = '0.75rem';
+					codeClassNames[0] === "hljs" ? codeClassNames[1].slice(9) : codeClassNames[0].slice(9);
+				langDiv.style.color = "white";
+				langDiv.style.margin = "4px";
+				langDiv.style.fontSize = "0.75rem";
 
-				let button = document.createElement('button');
-				button.textContent = 'Copy Code';
-				button.style.background = 'none';
-				button.style.fontSize = '0.75rem';
-				button.style.border = 'none';
-				button.style.margin = '4px';
-				button.style.cursor = 'pointer';
-				button.style.color = '#ddd';
-				button.addEventListener('click', () => copyCode(block, button));
+				let button = document.createElement("button");
+				button.textContent = "Copy Code";
+				button.style.background = "none";
+				button.style.fontSize = "0.75rem";
+				button.style.border = "none";
+				button.style.margin = "4px";
+				button.style.cursor = "pointer";
+				button.style.color = "#ddd";
+				button.addEventListener("click", () => copyCode(block, button));
 
 				topBarDiv.appendChild(langDiv);
 				topBarDiv.appendChild(button);
@@ -120,22 +120,22 @@
 		});
 
 		async function copyCode(block, button) {
-			let code = block.querySelector('code');
+			let code = block.querySelector("code");
 			let text = code.innerText;
 
 			await navigator.clipboard.writeText(text);
 
 			// visual feedback that task is completed
-			button.innerText = 'Copied!';
+			button.innerText = "Copied!";
 
 			setTimeout(() => {
-				button.innerText = 'Copy Code';
+				button.innerText = "Copy Code";
 			}, 1000);
 		}
 	};
 
 	const renderLatex = () => {
-		let chatMessageElements = document.getElementsByClassName('chat-assistant');
+		let chatMessageElements = document.getElementsByClassName("chat-assistant");
 		// let lastChatMessageElement = chatMessageElements[chatMessageElements.length - 1];
 
 		for (const element of chatMessageElements) {
@@ -143,10 +143,10 @@
 				// customised options
 				// • auto-render specific keys, e.g.:
 				delimiters: [
-					{ left: '$$', right: '$$', display: true },
+					{ left: "$$", right: "$$", display: true },
 					// { left: '$', right: '$', display: false },
-					{ left: '\\(', right: '\\)', display: true },
-					{ left: '\\[', right: '\\]', display: true }
+					{ left: "\\(", right: "\\)", display: true },
+					{ left: "\\[", right: "\\]", display: true }
 				],
 				// • rendering keys, e.g.:
 				throwOnError: false
@@ -156,24 +156,24 @@
 
 	const copyToClipboard = (text) => {
 		if (!navigator.clipboard) {
-			var textArea = document.createElement('textarea');
+			var textArea = document.createElement("textarea");
 			textArea.value = text;
 
 			// Avoid scrolling to bottom
-			textArea.style.top = '0';
-			textArea.style.left = '0';
-			textArea.style.position = 'fixed';
+			textArea.style.top = "0";
+			textArea.style.left = "0";
+			textArea.style.position = "fixed";
 
 			document.body.appendChild(textArea);
 			textArea.focus();
 			textArea.select();
 
 			try {
-				var successful = document.execCommand('copy');
-				var msg = successful ? 'successful' : 'unsuccessful';
-				console.log('Fallback: Copying text command was ' + msg);
+				var successful = document.execCommand("copy");
+				var msg = successful ? "successful" : "unsuccessful";
+				console.log("Fallback: Copying text command was " + msg);
 			} catch (err) {
-				console.error('Fallback: Oops, unable to copy', err);
+				console.error("Fallback: Oops, unable to copy", err);
 			}
 
 			document.body.removeChild(textArea);
@@ -181,11 +181,11 @@
 		}
 		navigator.clipboard.writeText(text).then(
 			function () {
-				console.log('Async: Copying to clipboard was successful!');
-				toast.success('Copying to clipboard was successful!');
+				console.log("Async: Copying to clipboard was successful!");
+				toast.success("Copying to clipboard was successful!");
 			},
 			function (err) {
-				console.error('Async: Could not copy text: ', err);
+				console.error("Async: Could not copy text: ", err);
 			}
 		);
 	};
@@ -200,7 +200,7 @@
 
 		const editElement = document.getElementById(`message-edit-${messageId}`);
 
-		editElement.style.height = '';
+		editElement.style.height = "";
 		editElement.style.height = `${editElement.scrollHeight}px`;
 	};
 
@@ -214,7 +214,7 @@
 			id: userMessageId,
 			parentId: history.messages[messageId].parentId,
 			childrenIds: [],
-			role: 'user',
+			role: "user",
 			content: userPrompt,
 			...(history.messages[messageId].files && { files: history.messages[messageId].files })
 		};
@@ -285,7 +285,7 @@
 		autoScroll = window.innerHeight + window.scrollY >= document.body.offsetHeight - 40;
 
 		setTimeout(() => {
-			window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+			window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
 		}, 100);
 	};
 
@@ -332,7 +332,7 @@
 
 		autoScroll = window.innerHeight + window.scrollY >= document.body.offsetHeight - 40;
 		setTimeout(() => {
-			window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+			window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
 		}, 100);
 	};
 </script>
@@ -357,13 +357,13 @@
 			<div class="flex justify-between px-5 mb-3 max-w-3xl mx-auto rounded-lg group">
 				<div class=" flex w-full">
 					<div class=" mr-4">
-						{#if message.role === 'user'}
-              <img
-                src="/user.png"
-                class=" max-w-[28px] object-cover rounded-full"
-                alt="User profile"
-                draggable="false"
-              />
+						{#if message.role === "user"}
+							<img
+								src="/user.png"
+								class=" max-w-[28px] object-cover rounded-full"
+								alt="User profile"
+								draggable="false"
+							/>
 						{:else}
 							<img
 								src="/favicon.png"
@@ -376,16 +376,16 @@
 
 					<div class="w-full overflow-hidden">
 						<div class=" self-center font-bold mb-0.5">
-							{#if message.role === 'user'}
+							{#if message.role === "user"}
 								You
 							{:else}
 								Ollama <span class=" text-gray-500 text-sm font-medium"
-									>{message.model ? ` ${message.model}` : ''}</span
+									>{message.model ? ` ${message.model}` : ""}</span
 								>
 							{/if}
 						</div>
 
-						{#if message.role !== 'user' && message.content === ''}
+						{#if message.role !== "user" && message.content === ""}
 							<div class="w-full mt-3">
 								<div class="animate-pulse flex w-full">
 									<div class="space-y-2 w-full">
@@ -409,12 +409,12 @@
 							<div
 								class="prose chat-{message.role} w-full max-w-full dark:prose-invert prose-headings:my-0 prose-p:my-0 prose-p:-mb-4 prose-pre:my-0 prose-table:my-0 prose-blockquote:my-0 prose-img:my-0 prose-ul:-my-4 prose-ol:-my-4 prose-li:-my-3 prose-ul:-mb-6 prose-ol:-mb-6 prose-li:-mb-4 whitespace-pre-line"
 							>
-								{#if message.role == 'user'}
+								{#if message.role == "user"}
 									{#if message.files}
 										<div class="my-3 w-full flex overflow-x-auto space-x-2">
 											{#each message.files as file}
 												<div>
-													{#if file.type === 'image'}
+													{#if file.type === "image"}
 														<img
 															src={file.url}
 															alt="input"
@@ -611,7 +611,7 @@
 									{/if}
 								{/if}
 
-								{#if message.role === 'assistant'}
+								{#if message.role === "assistant"}
 									<div>
 										{#if message?.edit === true}
 											<div class=" w-full">
@@ -670,7 +670,7 @@
 														</div>
 													</div>
 												{:else}
-													{@html marked(message.content.replace('\\\\', '\\\\\\'))}
+													{@html marked(message.content.replace("\\\\", "\\\\\\"))}
 												{/if}
 
 												{#if message.done}

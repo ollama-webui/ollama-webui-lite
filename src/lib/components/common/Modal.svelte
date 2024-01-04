@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
-	import { fade } from 'svelte/transition';
+	import { onMount } from "svelte";
+	import { fade } from "svelte/transition";
 
 	export let show = true;
 	let mounted = false;
@@ -11,9 +11,9 @@
 
 	$: if (mounted) {
 		if (show) {
-			document.body.style.overflow = 'hidden';
+			document.body.style.overflow = "hidden";
 		} else {
-			document.body.style.overflow = 'unset';
+			document.body.style.overflow = "unset";
 		}
 	}
 </script>

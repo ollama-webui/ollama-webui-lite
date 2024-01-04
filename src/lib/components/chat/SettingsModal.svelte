@@ -1,12 +1,12 @@
 <script lang="ts">
-	import Modal from '../common/Modal.svelte';
+	import Modal from "../common/Modal.svelte";
 
-	import { WEB_UI_VERSION, OLLAMA_API_BASE_URL } from '$lib/constants';
-	import toast from 'svelte-french-toast';
-	import { onMount } from 'svelte';
-	import { info, models, settings } from '$lib/stores';
-	import { splitStream } from '$lib/utils';
-	import Advanced from './Settings/Advanced.svelte';
+	import { WEB_UI_VERSION, OLLAMA_API_BASE_URL } from "$lib/constants";
+	import toast from "svelte-french-toast";
+	import { onMount } from "svelte";
+	import { info, models, settings } from "$lib/stores";
+	import { splitStream } from "$lib/utils";
+	import Advanced from "./Settings/Advanced.svelte";
 
 	export let show = false;
 
@@ -14,48 +14,48 @@
 		console.log(updated);
 		await settings.set({ ...$settings, ...updated });
 		await models.set(await getModels());
-		localStorage.setItem('settings', JSON.stringify($settings));
+		localStorage.setItem("settings", JSON.stringify($settings));
 	};
 
-	let selectedTab = 'general';
+	let selectedTab = "general";
 
 	// General
 	let API_BASE_URL = OLLAMA_API_BASE_URL;
-	let theme = 'dark';
+	let theme = "dark";
 	let notificationEnabled = false;
 
 	// Advanced
-	let requestFormat = '';
+	let requestFormat = "";
 	let options = {
 		// Advanced
 		seed: 0,
-		temperature: '',
-		repeat_penalty: '',
-		repeat_last_n: '',
-		mirostat: '',
-		mirostat_eta: '',
-		mirostat_tau: '',
-		top_k: '',
-		top_p: '',
-		stop: '',
-		tfs_z: '',
-		num_ctx: ''
+		temperature: "",
+		repeat_penalty: "",
+		repeat_last_n: "",
+		mirostat: "",
+		mirostat_eta: "",
+		mirostat_tau: "",
+		top_k: "",
+		top_p: "",
+		stop: "",
+		tfs_z: "",
+		num_ctx: ""
 	};
 
 	// Models
-	let modelTag = '';
-	let deleteModelTag = '';
-	let digest = '';
+	let modelTag = "";
+	let deleteModelTag = "";
+	let digest = "";
 	let pullProgress = null;
 
 	const checkOllamaConnection = async () => {
-		if (API_BASE_URL === '') {
+		if (API_BASE_URL === "") {
 			API_BASE_URL = OLLAMA_API_BASE_URL;
 		}
-		const _models = await getModels(API_BASE_URL, 'ollama');
+		const _models = await getModels(API_BASE_URL, "ollama");
 
 		if (_models.length > 0) {
-			toast.success('Server connection verified');
+			toast.success("Server connection verified");
 			await models.set(_models);
 
 			saveSettings({
@@ -65,33 +65,33 @@
 	};
 
 	const toggleTheme = async () => {
-		if (theme === 'dark') {
-			theme = 'light';
+		if (theme === "dark") {
+			theme = "light";
 		} else {
-			theme = 'dark';
+			theme = "dark";
 		}
 
 		localStorage.theme = theme;
 
-		document.documentElement.classList.remove(theme === 'dark' ? 'light' : 'dark');
+		document.documentElement.classList.remove(theme === "dark" ? "light" : "dark");
 		document.documentElement.classList.add(theme);
 	};
 
 	const toggleRequestFormat = async () => {
-		if (requestFormat === '') {
-			requestFormat = 'json';
+		if (requestFormat === "") {
+			requestFormat = "json";
 		} else {
-			requestFormat = '';
+			requestFormat = "";
 		}
 
-		saveSettings({ requestFormat: requestFormat !== '' ? requestFormat : undefined });
+		saveSettings({ requestFormat: requestFormat !== "" ? requestFormat : undefined });
 	};
 
 	const pullModelHandler = async () => {
 		const res = await fetch(`${API_BASE_URL}/pull`, {
-			method: 'POST',
+			method: "POST",
 			headers: {
-				'Content-Type': 'text/event-stream'
+				"Content-Type": "text/event-stream"
 			},
 			body: JSON.stringify({
 				name: modelTag
@@ -100,7 +100,7 @@
 
 		const reader = res.body
 			.pipeThrough(new TextDecoderStream())
-			.pipeThrough(splitStream('\n'))
+			.pipeThrough(splitStream("\n"))
 			.getReader();
 
 		while (true) {
@@ -108,10 +108,10 @@
 			if (done) break;
 
 			try {
-				let lines = value.split('\n');
+				let lines = value.split("\n");
 
 				for (const line of lines) {
-					if (line !== '') {
+					if (line !== "") {
 						console.log(line);
 						let data = JSON.parse(line);
 						console.log(data);
@@ -127,10 +127,10 @@
 							if (!data.digest) {
 								toast.success(data.status);
 
-								if (data.status === 'success') {
+								if (data.status === "success") {
 									const notification = new Notification(`Ollama`, {
 										body: `Model '${modelTag}' has been successfully downloaded.`,
-										icon: '/favicon.png'
+										icon: "/favicon.png"
 									});
 								}
 							} else {
@@ -150,15 +150,15 @@
 			}
 		}
 
-		modelTag = '';
+		modelTag = "";
 		models.set(await getModels());
 	};
 
 	const deleteModelHandler = async () => {
 		const res = await fetch(`${API_BASE_URL}/delete`, {
-			method: 'DELETE',
+			method: "DELETE",
 			headers: {
-				'Content-Type': 'text/event-stream'
+				"Content-Type": "text/event-stream"
 			},
 			body: JSON.stringify({
 				name: deleteModelTag
@@ -167,7 +167,7 @@
 
 		const reader = res.body
 			.pipeThrough(new TextDecoderStream())
-			.pipeThrough(splitStream('\n'))
+			.pipeThrough(splitStream("\n"))
 			.getReader();
 
 		while (true) {
@@ -175,10 +175,10 @@
 			if (done) break;
 
 			try {
-				let lines = value.split('\n');
+				let lines = value.split("\n");
 
 				for (const line of lines) {
-					if (line !== '' && line !== 'null') {
+					if (line !== "" && line !== "null") {
 						console.log(line);
 						let data = JSON.parse(line);
 						console.log(data);
@@ -202,17 +202,17 @@
 			}
 		}
 
-		deleteModelTag = '';
+		deleteModelTag = "";
 		models.set(await getModels());
 	};
 
-	const getModels = async (url = '', type = 'all') => {
+	const getModels = async (url = "", type = "all") => {
 		let models = [];
 		const res = await fetch(`${url ? url : $settings?.API_BASE_URL ?? OLLAMA_API_BASE_URL}/tags`, {
-			method: 'GET',
+			method: "GET",
 			headers: {
-				Accept: 'application/json',
-				'Content-Type': 'application/json'
+				Accept: "application/json",
+				"Content-Type": "application/json"
 			}
 		})
 			.then(async (res) => {
@@ -221,10 +221,10 @@
 			})
 			.catch((error) => {
 				console.log(error);
-				if ('detail' in error) {
+				if ("detail" in error) {
 					toast.error(error.detail);
 				} else {
-					toast.error('Server connection failed');
+					toast.error("Server connection failed");
 				}
 				return null;
 			});
@@ -233,22 +233,22 @@
 	};
 
 	onMount(() => {
-		let settings = JSON.parse(localStorage.getItem('settings') ?? '{}');
+		let settings = JSON.parse(localStorage.getItem("settings") ?? "{}");
 		console.log(settings);
 
-		theme = localStorage.theme ?? 'dark';
+		theme = localStorage.theme ?? "dark";
 		notificationEnabled = settings.notificationEnabled ?? false;
 
 		API_BASE_URL = settings.API_BASE_URL ?? OLLAMA_API_BASE_URL;
 
-		requestFormat = settings.requestFormat ?? '';
+		requestFormat = settings.requestFormat ?? "";
 
 		options.seed = settings.seed ?? 0;
-		options.temperature = settings.temperature ?? '';
-		options.repeat_penalty = settings.repeat_penalty ?? '';
-		options.top_k = settings.top_k ?? '';
-		options.top_p = settings.top_p ?? '';
-		options.num_ctx = settings.num_ctx ?? '';
+		options.temperature = settings.temperature ?? "";
+		options.repeat_penalty = settings.repeat_penalty ?? "";
+		options.top_k = settings.top_k ?? "";
+		options.top_p = settings.top_p ?? "";
+		options.num_ctx = settings.num_ctx ?? "";
 		options = { ...options, ...settings.options };
 	});
 </script>
@@ -287,7 +287,7 @@
 						? 'bg-gray-200 dark:bg-gray-700'
 						: ' hover:bg-gray-300 dark:hover:bg-gray-800'}"
 					on:click={() => {
-						selectedTab = 'general';
+						selectedTab = "general";
 					}}
 				>
 					<div class=" self-center mr-2">
@@ -313,7 +313,7 @@
 						? 'bg-gray-200 dark:bg-gray-700'
 						: ' hover:bg-gray-300 dark:hover:bg-gray-800'}"
 					on:click={() => {
-						selectedTab = 'advanced';
+						selectedTab = "advanced";
 					}}
 				>
 					<div class=" self-center mr-2">
@@ -337,7 +337,7 @@
 						? 'bg-gray-200 dark:bg-gray-700'
 						: ' hover:bg-gray-300 dark:hover:bg-gray-800'}"
 					on:click={() => {
-						selectedTab = 'models';
+						selectedTab = "models";
 					}}
 				>
 					<div class=" self-center mr-2">
@@ -363,7 +363,7 @@
 						? 'bg-gray-200 dark:bg-gray-700'
 						: ' hover:bg-gray-300 dark:hover:bg-gray-800'}"
 					on:click={() => {
-						selectedTab = 'about';
+						selectedTab = "about";
 					}}
 				>
 					<div class=" self-center mr-2">
@@ -384,7 +384,7 @@
 				</button>
 			</div>
 			<div class="flex-1 md:min-h-[340px]">
-				{#if selectedTab === 'general'}
+				{#if selectedTab === "general"}
 					<div class="flex flex-col space-y-3">
 						<div>
 							<div class=" mb-1 text-sm font-medium">WebUI Settings</div>
@@ -398,7 +398,7 @@
 										toggleTheme();
 									}}
 								>
-									{#if theme === 'dark'}
+									{#if theme === "dark"}
 										<svg
 											xmlns="http://www.w3.org/2000/svg"
 											viewBox="0 0 20 20"
@@ -480,7 +480,7 @@
 								class=" px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-gray-100 transition rounded"
 								on:click={() => {
 									saveSettings({
-										API_BASE_URL: API_BASE_URL === '' ? OLLAMA_API_BASE_URL : API_BASE_URL,
+										API_BASE_URL: API_BASE_URL === "" ? OLLAMA_API_BASE_URL : API_BASE_URL
 									});
 									show = false;
 								}}
@@ -489,7 +489,7 @@
 							</button>
 						</div>
 					</div>
-				{:else if selectedTab === 'advanced'}
+				{:else if selectedTab === "advanced"}
 					<div class="flex flex-col h-full justify-between text-sm">
 						<div class=" space-y-3 pr-1.5 overflow-y-scroll max-h-72">
 							<div class=" text-sm font-medium">Parameters</div>
@@ -507,9 +507,9 @@
 											toggleRequestFormat();
 										}}
 									>
-										{#if requestFormat === ''}
+										{#if requestFormat === ""}
 											<span class="ml-2 self-center"> Default </span>
-										{:else if requestFormat === 'json'}
+										{:else if requestFormat === "json"}
 											<!-- <svg
 												xmlns="http://www.w3.org/2000/svg"
 												viewBox="0 0 20 20"
@@ -534,19 +534,19 @@
 									saveSettings({
 										options: {
 											seed: (options.seed !== 0 ? options.seed : undefined) ?? undefined,
-											stop: options.stop !== '' ? options.stop : undefined,
-											temperature: options.temperature !== '' ? options.temperature : undefined,
+											stop: options.stop !== "" ? options.stop : undefined,
+											temperature: options.temperature !== "" ? options.temperature : undefined,
 											repeat_penalty:
-												options.repeat_penalty !== '' ? options.repeat_penalty : undefined,
+												options.repeat_penalty !== "" ? options.repeat_penalty : undefined,
 											repeat_last_n:
-												options.repeat_last_n !== '' ? options.repeat_last_n : undefined,
-											mirostat: options.mirostat !== '' ? options.mirostat : undefined,
-											mirostat_eta: options.mirostat_eta !== '' ? options.mirostat_eta : undefined,
-											mirostat_tau: options.mirostat_tau !== '' ? options.mirostat_tau : undefined,
-											top_k: options.top_k !== '' ? options.top_k : undefined,
-											top_p: options.top_p !== '' ? options.top_p : undefined,
-											tfs_z: options.tfs_z !== '' ? options.tfs_z : undefined,
-											num_ctx: options.num_ctx !== '' ? options.num_ctx : undefined
+												options.repeat_last_n !== "" ? options.repeat_last_n : undefined,
+											mirostat: options.mirostat !== "" ? options.mirostat : undefined,
+											mirostat_eta: options.mirostat_eta !== "" ? options.mirostat_eta : undefined,
+											mirostat_tau: options.mirostat_tau !== "" ? options.mirostat_tau : undefined,
+											top_k: options.top_k !== "" ? options.top_k : undefined,
+											top_p: options.top_p !== "" ? options.top_p : undefined,
+											tfs_z: options.tfs_z !== "" ? options.tfs_z : undefined,
+											num_ctx: options.num_ctx !== "" ? options.num_ctx : undefined
 										}
 									});
 									show = false;
@@ -556,7 +556,7 @@
 							</button>
 						</div>
 					</div>
-				{:else if selectedTab === 'models'}
+				{:else if selectedTab === "models"}
 					<div class="flex flex-col space-y-3 text-sm mb-10">
 						<div>
 							<div class=" mb-2.5 text-sm font-medium">Pull a model</div>
@@ -631,7 +631,7 @@
 										{/if}
 										{#each $models.filter((m) => m.size != null) as model}
 											<option value={model.name} class="bg-gray-100 dark:bg-gray-700"
-												>{model.name + ' (' + (model.size / 1024 ** 3).toFixed(1) + ' GB)'}</option
+												>{model.name + " (" + (model.size / 1024 ** 3).toFixed(1) + " GB)"}</option
 											>
 										{/each}
 									</select>
@@ -658,7 +658,7 @@
 							</div>
 						</div>
 					</div>
-				{:else if selectedTab === 'about'}
+				{:else if selectedTab === "about"}
 					<div class="flex flex-col h-full justify-between space-y-3 text-sm mb-6">
 						<div class=" space-y-3">
 							<div>
@@ -676,7 +676,7 @@
 								<div class=" mb-2.5 text-sm font-medium">Ollama Version</div>
 								<div class="flex w-full">
 									<div class="flex-1 text-xs text-gray-700 dark:text-gray-200">
-										{$info?.ollama?.version ?? 'N/A'}
+										{$info?.ollama?.version ?? "N/A"}
 									</div>
 								</div>
 							</div>
@@ -724,7 +724,7 @@
 		scrollbar-width: none; /* Firefox */
 	}
 
-	input[type='number'] {
+	input[type="number"] {
 		-moz-appearance: textfield; /* Firefox */
 	}
 </style>

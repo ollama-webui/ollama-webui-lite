@@ -1,11 +1,10 @@
 <script lang="ts">
-	import { v4 as uuidv4 } from 'uuid';
+	import { v4 as uuidv4 } from "uuid";
 
-	import { goto } from '$app/navigation';
-	import { chatId, db } from '$lib/stores';
+	import { goto } from "$app/navigation";
+	import { chatId, db } from "$lib/stores";
 
-	export let title: string = 'Ollama Web UI';
-
+	export let title: string = "Ollama Web UI";
 </script>
 
 <nav
@@ -18,8 +17,8 @@
 				<button
 					class=" cursor-pointer p-1 flex dark:hover:bg-gray-700 rounded-lg transition"
 					on:click={async () => {
-						console.log('newChat');
-						goto('/');
+						console.log("newChat");
+						goto("/");
 						await chatId.set(uuidv4());
 					}}
 				>
@@ -41,7 +40,7 @@
 				</button>
 			</div>
 			<div class=" flex-1 self-center font-medium text-ellipsis whitespace-nowrap overflow-hidden">
-				{title != '' ? title : 'Ollama Web UI'}
+				{title != "" ? title : "Ollama Web UI"}
 			</div>
 		</div>
 	</div>

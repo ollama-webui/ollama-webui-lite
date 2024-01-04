@@ -1,34 +1,26 @@
 <script lang="ts">
-	import { v4 as uuidv4 } from 'uuid';
-	import { openDB, deleteDB } from 'idb';
-	import { onMount, tick } from 'svelte';
-	import { goto } from '$app/navigation';
+	import { v4 as uuidv4 } from "uuid";
+	import { openDB, deleteDB } from "idb";
+	import { onMount, tick } from "svelte";
+	import { goto } from "$app/navigation";
 
-	import {
-		info,
-		showSettings,
-		settings,
-		models,
-		db,
-		chats,
-		chatId,
-	} from '$lib/stores';
+	import { info, showSettings, settings, models, db, chats, chatId } from "$lib/stores";
 
-	import SettingsModal from '$lib/components/chat/SettingsModal.svelte';
-	import Sidebar from '$lib/components/layout/Sidebar.svelte';
-	import toast from 'svelte-french-toast';
-	import { OLLAMA_API_BASE_URL } from '$lib/constants';
+	import SettingsModal from "$lib/components/chat/SettingsModal.svelte";
+	import Sidebar from "$lib/components/layout/Sidebar.svelte";
+	import toast from "svelte-french-toast";
+	import { OLLAMA_API_BASE_URL } from "$lib/constants";
 
-	let requiredOllamaVersion = '0.1.16';
+	let requiredOllamaVersion = "0.1.16";
 	let loaded = false;
 
 	const getModels = async () => {
 		let models = [];
 		const res = await fetch(`${$settings?.API_BASE_URL ?? OLLAMA_API_BASE_URL}/tags`, {
-			method: 'GET',
+			method: "GET",
 			headers: {
-				Accept: 'application/json',
-				'Content-Type': 'application/json'
+				Accept: "application/json",
+				"Content-Type": "application/json"
 			}
 		})
 			.then(async (res) => {
@@ -37,37 +29,37 @@
 			})
 			.catch((error) => {
 				console.log(error);
-				if ('detail' in error) {
+				if ("detail" in error) {
 					toast.error(error.detail);
 				} else {
-					toast.error('Server connection failed');
+					toast.error("Server connection failed");
 				}
 				return null;
 			});
 		console.log(res);
 		models.push(...(res?.models ?? []));
-		
+
 		return models;
 	};
 
 	const getDB = async () => {
-		const DB = await openDB('Chats', 1, {
+		const DB = await openDB("Chats", 1, {
 			upgrade(db) {
-				const store = db.createObjectStore('chats', {
-					keyPath: 'id',
+				const store = db.createObjectStore("chats", {
+					keyPath: "id",
 					autoIncrement: true
 				});
-				store.createIndex('timestamp', 'timestamp');
+				store.createIndex("timestamp", "timestamp");
 			}
 		});
 
 		return {
 			db: DB,
 			getChatById: async function (id) {
-				return await this.db.get('chats', id);
+				return await this.db.get("chats", id);
 			},
 			getChats: async function () {
-				let chats = await this.db.getAllFromIndex('chats', 'timestamp');
+				let chats = await this.db.getAllFromIndex("chats", "timestamp");
 				chats = chats.map((item, idx) => ({
 					title: chats[chats.length - 1 - idx].title,
 					id: chats[chats.length - 1 - idx].id
@@ -75,7 +67,7 @@
 				return chats;
 			},
 			exportChats: async function () {
-				let chats = await this.db.getAllFromIndex('chats', 'timestamp');
+				let chats = await this.db.getAllFromIndex("chats", "timestamp");
 				chats = chats.map((item, idx) => chats[chats.length - 1 - idx]);
 				return chats;
 			},
@@ -87,7 +79,7 @@
 				await chats.set(await this.getChats());
 			},
 			addChat: async function (chat) {
-				await this.db.put('chats', {
+				await this.db.put("chats", {
 					...chat
 				});
 			},
@@ -98,7 +90,7 @@
 			updateChatById: async function (id, updated) {
 				const chat = await this.getChatById(id);
 
-				await this.db.put('chats', {
+				await this.db.put("chats", {
 					...chat,
 					...updated,
 					timestamp: Date.now()
@@ -108,14 +100,14 @@
 			},
 			deleteChatById: async function (id) {
 				if ($chatId === id) {
-					goto('/');
+					goto("/");
 					await chatId.set(uuidv4());
 				}
-				await this.db.delete('chats', id);
+				await this.db.delete("chats", id);
 				await chats.set(await this.getChats());
 			},
 			deleteAllChat: async function () {
-				const tx = this.db.transaction('chats', 'readwrite');
+				const tx = this.db.transaction("chats", "readwrite");
 				await Promise.all([tx.store.clear(), tx.done]);
 
 				await chats.set(await this.getChats());
@@ -125,10 +117,10 @@
 
 	const getOllamaVersion = async () => {
 		const res = await fetch(`${$settings?.API_BASE_URL ?? OLLAMA_API_BASE_URL}/version`, {
-			method: 'GET',
+			method: "GET",
 			headers: {
-				Accept: 'application/json',
-				'Content-Type': 'application/json'
+				Accept: "application/json",
+				"Content-Type": "application/json"
 			}
 		})
 			.then(async (res) => {
@@ -137,17 +129,17 @@
 			})
 			.catch((error) => {
 				console.log(error);
-				if ('detail' in error) {
+				if ("detail" in error) {
 					toast.error(error.detail);
 				} else {
-					toast.error('Server connection failed');
+					toast.error("Server connection failed");
 				}
 				return null;
 			});
 
 		console.log(res);
 
-		return res?.version ?? '0';
+		return res?.version ?? "0";
 	};
 
 	const setOllamaVersion = async (ollamaVersion) => {
@@ -156,8 +148,8 @@
 		if (
 			ollamaVersion.localeCompare(requiredOllamaVersion, undefined, {
 				numeric: true,
-				sensitivity: 'case',
-				caseFirst: 'upper'
+				sensitivity: "case",
+				caseFirst: "upper"
 			}) < 0
 		) {
 			toast.error(`Ollama Version: ${ollamaVersion}`);
@@ -165,7 +157,7 @@
 	};
 
 	onMount(async () => {
-		await settings.set(JSON.parse(localStorage.getItem('settings') ?? '{}'));
+		await settings.set(JSON.parse(localStorage.getItem("settings") ?? "{}"));
 
 		await models.set(await getModels());
 
@@ -181,7 +173,7 @@
 
 {#if loaded}
 	<div class="app relative">
-		{#if ($info?.ollama?.version ?? '0').localeCompare( requiredOllamaVersion, undefined, { numeric: true, sensitivity: 'case', caseFirst: 'upper' } ) < 0}
+		{#if ($info?.ollama?.version ?? "0").localeCompare( requiredOllamaVersion, undefined, { numeric: true, sensitivity: "case", caseFirst: "upper" } ) < 0}
 			<div class="absolute w-full h-full flex z-50">
 				<div
 					class="absolute rounded-xl w-full h-full backdrop-blur bg-gray-900/60 flex justify-center"
@@ -251,7 +243,7 @@
 		}
 	}
 
-	pre[class*='language-'] {
+	pre[class*="language-"] {
 		position: relative;
 		overflow: auto;
 
@@ -261,7 +253,7 @@
 		border-radius: 10px;
 	}
 
-	pre[class*='language-'] button {
+	pre[class*="language-"] button {
 		position: absolute;
 		top: 5px;
 		right: 5px;
@@ -275,7 +267,7 @@
 		text-shadow: #c4c4c4 0 0 2px;
 	}
 
-	pre[class*='language-'] button:hover {
+	pre[class*="language-"] button:hover {
 		cursor: pointer;
 		background-color: #bcbabb;
 	}

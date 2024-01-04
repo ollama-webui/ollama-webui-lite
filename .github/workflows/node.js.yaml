@@ -1,13 +1,13 @@
 name: Node.js CI
 on:
   push:
-    branches: ['main']
+    branches: ["main"]
   pull_request:
 jobs:
   build:
-    name: 'Fmt, Lint, & Build'
+    name: "Fmt, Lint, & Build"
     env:
-      PUBLIC_API_BASE_URL: ''
+      PUBLIC_API_BASE_URL: ""
     runs-on: ubuntu-latest
     strategy:
       matrix:

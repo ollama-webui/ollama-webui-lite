@@ -13,4 +13,4 @@ export const ssr = false;
 // the URL for about page witll be /about with 'ignore' (default)
 // the URL for about page witll be /about/ with 'always'
 // https://kit.svelte.dev/docs/page-options#trailingslash
-export const trailingSlash = 'ignore';
+export const trailingSlash = "ignore";

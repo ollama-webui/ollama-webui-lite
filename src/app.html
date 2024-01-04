@@ -8,12 +8,12 @@
 		<script>
 			// On page load or when changing themes, best to add inline in `head` to avoid FOUC
 			if (
-				localStorage.theme === 'light' ||
-				(!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: light)').matches)
+				localStorage.theme === "light" ||
+				(!("theme" in localStorage) && window.matchMedia("(prefers-color-scheme: light)").matches)
 			) {
-				document.documentElement.classList.add('light');
+				document.documentElement.classList.add("light");
 			} else {
-				document.documentElement.classList.add('dark');
+				document.documentElement.classList.add("dark");
 			}
 		</script>
 		%sveltekit.head%
