@@ -13,6 +13,7 @@ We are committed to maintaining this repository and progressively working throug
 - **TypeScript Migration:** Fully migrate the codebase to TypeScript, providing complete type declarations.
 - **Test Implementation:** Introduce a comprehensive suite of tests to ensure code reliability.
 - **CI/CD Integration:** Establish a continuous integration and continuous deployment pipeline for automated testing and deployment.
+- **Upstream Ollama-WebUI Features:** Adding core features from [Ollama WebUI](https://github.com/ollama-webui/ollama-webui).
 - **Additional Features:** Add new features based on user requests.
 
 ## Installation 🚀
@@ -53,8 +54,8 @@ Follow these steps to set up Ollama-webui-lite:
    ```
 
    Ollama Web UI Lite now should be available at http://localhost:3000
-  
-  ![Preview](preview.png)
+
+![Preview](preview.png)
 
 ## License 📜
 
