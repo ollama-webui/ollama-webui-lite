@@ -65,3 +65,7 @@ This project is licensed under the [MIT License](LICENSE) - see the [LICENSE](LI
 If you have any questions, suggestions, or need assistance, please open an issue or join our
 [Ollama Web UI Discord community](https://discord.gg/5rJgQTnV4s) or
 [Ollama Discord community](https://discord.gg/ollama) to connect with us! 🤝
+
+---
+
+Proudly Maintained by [Duc Dang](https://github.com/dangminhduc1101) and Created by [Timothy J. Baek](https://github.com/tjbck) - Let's make Ollama Web UI even more amazing together! 💪
