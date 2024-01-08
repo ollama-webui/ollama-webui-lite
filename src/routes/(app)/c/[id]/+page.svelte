@@ -13,6 +13,7 @@
 	import ModelSelector from '$lib/components/chat/ModelSelector.svelte';
 	import Navbar from '$lib/components/layout/Navbar.svelte';
 	import { page } from '$app/stores';
+	import type { MouseEventHandler } from 'svelte/elements';
 
 	let loaded = false;
 	let stopResponseFlag = false;
@@ -394,7 +395,6 @@
 
 	const stopResponse = () => {
 		stopResponseFlag = true;
-		console.log('stopResponse');
 	};
 
 	const regenerateResponse = async () => {
