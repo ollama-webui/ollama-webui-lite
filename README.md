@@ -20,11 +20,9 @@ We are committed to maintaining this repository and progressively working throug
 
 Before proceeding with the installation, ensure that you have the following prerequisites:
 
-- Docker
+- Ollama (see [here](https://ollama.ai/)) running at http://localhost:11434/api. 
 - Node.js
 - npm
-
-If you are not using Docker, you can instead host your own Ollama server (see [here](https://ollama.ai/)) at http://localhost:11434/api.
 
 Follow these steps to set up Ollama-webui-lite:
 
@@ -35,19 +33,13 @@ Follow these steps to set up Ollama-webui-lite:
    cd ollama-webui-lite
    ```
 
-2. Start the Ollama Docker containers (or set up your Ollama server):
-
-   ```bash
-   docker-compose up -d --build
-   ```
-
-3. Install the dependencies:
+2. Install the dependencies:
 
    ```bash
    npm ci
    ```
 
-4. Run the application in development mode:
+3. Run the application in development mode:
 
    ```bash
    npm run dev
