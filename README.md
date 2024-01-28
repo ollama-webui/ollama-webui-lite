@@ -49,6 +49,31 @@ Follow these steps to set up Ollama-webui-lite:
 
 ![Preview](preview.png)
 
+### Using Docker
+
+Before proceeding with the installation, ensure that you have the following prerequisites:
+
+- Ollama (see [here](https://ollama.ai/)) running at http://localhost:11434/api. 
+- Docker (see [here](https://www.docker.com/get-started/))
+
+Follow these steps to set up Ollama-webui-lite:
+
+1. Clone the repository:
+
+   ```bash
+   git clone https://github.com/ollama-webui/ollama-webui-lite.git
+   cd ollama-webui-lite
+   ```
+
+2. Build and run the container:
+
+   ```bash
+   docker build -t ollama-webui-lite-image .
+   docker run -d -p 3000:3000 --name ollama-webui-lite-container ollama-webui-lite-image
+   ```
+
+   Ollama Web UI Lite now should be available at http://localhost:3000
+
 ## License 📜
 
 This project is licensed under the [MIT License](LICENSE) - see the [LICENSE](LICENSE) file for details. 📄
