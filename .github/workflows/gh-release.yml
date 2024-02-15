@@ -1,0 +1,65 @@
+name: Build site and Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+  id-token: write
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build with Vite.js
+        run: npm run build
+
+      - name: Prepare build directory
+        run: mv build ollama-webui-lite
+
+      - name: Zip build artifacts
+        run: zip -r ollama-webui-lite.zip ./ollama-webui-lite
+
+      - name: Tar and Gzip build artifacts
+        run: tar -czvf ollama-webui-lite.tar.gz ./ollama-webui-lite
+        # Creates a .tar.gz file of the build directory
+
+      - name: Create Release and Upload Assets
+        uses: softprops/action-gh-release@v1
+        with:
+          name: ${{ github.ref_name }}
+          body: |
+            ## Release ${{ github.ref_name }} of Ollama WebUI Lite
+            
+            ### 🚀 New Features
+            - List new features here
+            - Improvements or bug fixes
+      
+            ### 📦 Installation Instructions
+            To deploy Ollama WebUI Lite to your webserver, follow these steps:
+            1. Download the appropriate build archive for your system (`.zip` or `.tar.gz`).
+            2. Unzip or untar the archive in your desired directory.
+            3. Ensure your webserver (e.g., Apache, Nginx) points to the extracted directory.
+            4. Open your web browser and navigate to the URL of your webserver.
+      
+          tag_name: ${{ github.ref_name }}
+          files: |
+            ollama-webui-lite.zip
+            ollama-webui-lite.tar.gz
+          token: ${{ secrets.GITHUB_TOKEN }}
+          draft: true # Adjust these as preferred
+          prerelease: true # Adjust these as preferred
