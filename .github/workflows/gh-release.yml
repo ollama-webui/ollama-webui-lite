@@ -29,7 +29,10 @@ jobs:
         run: npm run build
 
       - name: Prepare build directory
-        run: mv build ollama-webui-lite
+        run: |
+          mv build ollama-webui-lite
+          cp README.md ollama-webui-lite/README.md
+          cp LICENSE ollama-webui-lite/LICENSE
 
       - name: Zip build artifacts
         run: zip -r ollama-webui-lite.zip ./ollama-webui-lite
